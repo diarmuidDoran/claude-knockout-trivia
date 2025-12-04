@@ -6,7 +6,7 @@
 ✅ **railway.toml** - Railway configuration with health checks
 ✅ **.env.example** - Template for environment variables
 ✅ **runtime.txt** - Specifies Python 3.11.6
-✅ **RAILWAY_DEPLOYMENT.md** - Complete deployment guide
+✅ **requirements.txt** - Root requirements file for Nixpacks detection
 ✅ **main.py** - Updated to serve frontend and use PORT env var
 
 ---
@@ -30,16 +30,17 @@ git push origin main
 1. In project, click "+ New" → "Database" → "PostgreSQL"
 2. DATABASE_URL automatically configured
 
-### 4. Database Seeding (Automatic! ✨)
-**Questions are seeded automatically on every startup!**
+### 4. Database Setup (Automatic! ✨)
+**Database is initialized and seeded automatically on every startup!**
+- ✅ Creates all database tables
 - ✅ 1,000+ trivia questions
 - ✅ 500 haunting race questions
 - ✅ Runs on every app restart
 - ✅ Duplicates automatically skipped
 
-No manual seeding needed! Railway runs this on startup:
+No manual setup needed! Railway runs this on startup:
 ```bash
-cd backend && python seed_questions.py && python load_haunting_race_questions.py
+cd backend && python init_db.py && python seed_questions.py && python load_haunting_race_questions.py
 ```
 
 **(Optional) Manual seeding via Railway CLI:**
