@@ -106,11 +106,22 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str, player_id: st
         await connection_manager.disconnect(room_code, player_id)
         await game_service.handle_player_disconnect(room_code, player_id)
 
+# Serve frontend static files (for production deployment)
+# This should be after all API routes to avoid conflicts
+frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "frontend")
+if os.path.exists(frontend_path):
+    print(f"[INFO] Serving frontend from: {frontend_path}")
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+else:
+    print(f"[WARNING] Frontend path not found: {frontend_path}")
+
 if __name__ == "__main__":
+    # Get port from environment variable (Railway sets this)
+    port = int(os.getenv("PORT", 8000))
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8000,
+        port=port,
         reload=True,
         log_level="info"
     )
