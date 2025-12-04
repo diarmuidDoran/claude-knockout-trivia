@@ -31,15 +31,15 @@ git push origin main
 2. DATABASE_URL automatically configured
 
 ### 4. Database Seeding (Automatic! ✨)
-**Questions are seeded automatically on deployment!**
+**Questions are seeded automatically on every startup!**
 - ✅ 1,000+ trivia questions
 - ✅ 500 haunting race questions
-- ✅ Runs on every deployment
+- ✅ Runs on every app restart
 - ✅ Duplicates automatically skipped
 
-No manual seeding needed! Railway runs this on build:
+No manual seeding needed! Railway runs this on startup:
 ```bash
-python seed_questions.py && python load_haunting_race_questions.py
+cd backend && python seed_questions.py && python load_haunting_race_questions.py
 ```
 
 **(Optional) Manual seeding via Railway CLI:**
