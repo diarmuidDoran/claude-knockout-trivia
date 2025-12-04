@@ -6,7 +6,7 @@
 ✅ **railway.toml** - Railway configuration with health checks
 ✅ **.env.example** - Template for environment variables
 ✅ **runtime.txt** - Specifies Python 3.11.6
-✅ **requirements.txt** - Root requirements file for Nixpacks detection
+✅ **requirements.txt** - Root requirements file for Railway builder detection
 ✅ **main.py** - Updated to serve frontend and use PORT env var
 
 ---
@@ -148,4 +148,8 @@ No changes needed! 🎉
 
 ---
 
-For detailed instructions, see: [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md)
+## Useful Railway Resources
+
+- [Railway Documentation](https://docs.railway.app)
+- [Railway CLI Reference](https://docs.railway.app/reference/cli-api)
+- [Railway Discord Support](https://discord.gg/railway)
