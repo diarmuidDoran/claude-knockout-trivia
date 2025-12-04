@@ -108,12 +108,28 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str, player_id: st
 
 # Serve frontend static files (for production deployment)
 # This should be after all API routes to avoid conflicts
-frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "frontend")
-if os.path.exists(frontend_path):
+# Try multiple possible paths for frontend
+possible_frontend_paths = [
+    os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "frontend"),  # Local dev
+    os.path.join(os.getcwd(), "frontend"),  # Railway deployment
+    os.path.join(os.path.dirname(os.getcwd()), "frontend"),  # Alternative
+]
+
+frontend_path = None
+for path in possible_frontend_paths:
+    abs_path = os.path.abspath(path)
+    if os.path.exists(abs_path):
+        frontend_path = abs_path
+        break
+
+if frontend_path and os.path.exists(frontend_path):
     print(f"[INFO] Serving frontend from: {frontend_path}")
     app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 else:
-    print(f"[WARNING] Frontend path not found: {frontend_path}")
+    print(f"[WARNING] Frontend path not found. Tried paths:")
+    for path in possible_frontend_paths:
+        print(f"  - {os.path.abspath(path)} (exists: {os.path.exists(os.path.abspath(path))})")
+    print(f"[WARNING] Current working directory: {os.getcwd()}")
 
 if __name__ == "__main__":
     # Get port from environment variable (Railway sets this)
