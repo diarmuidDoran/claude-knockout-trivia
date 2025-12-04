@@ -51,6 +51,15 @@ def load_questions():
         existing_count = db.query(HauntingRaceQuestion).count()
         if existing_count > 0:
             print(f"\n⚠ Warning: {existing_count} questions already exist in database")
+
+            # Check if running in non-interactive environment (like Railway)
+            import sys
+            if not sys.stdin.isatty():
+                print("Non-interactive environment detected. Skipping duplicate questions.")
+                print("Questions already loaded. Exiting.")
+                return
+
+            # Interactive environment - ask user
             response = input("Do you want to delete existing questions and reload? (y/N): ")
             if response.lower() == 'y':
                 print("Deleting existing questions...")
