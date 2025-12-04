@@ -46,6 +46,42 @@ app.include_router(game.router, prefix="/api/game", tags=["game"])
 async def health_check():
     return {"status": "healthy", "service": "knockout-trivia-api"}
 
+@app.get("/api/debug/frontend")
+async def debug_frontend():
+    """Debug endpoint to check frontend file structure"""
+    import os
+    debug_info = {
+        "cwd": os.getcwd(),
+        "frontend_paths_checked": [],
+        "frontend_exists": False,
+        "frontend_files": []
+    }
+
+    # Check all possible paths
+    possible_paths = [
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "frontend"),
+        os.path.join(os.getcwd(), "frontend"),
+        os.path.join(os.path.dirname(os.getcwd()), "frontend"),
+    ]
+
+    for path in possible_paths:
+        abs_path = os.path.abspath(path)
+        exists = os.path.exists(abs_path)
+        debug_info["frontend_paths_checked"].append({
+            "path": abs_path,
+            "exists": exists
+        })
+
+        if exists and not debug_info["frontend_exists"]:
+            debug_info["frontend_exists"] = True
+            debug_info["frontend_path"] = abs_path
+            try:
+                debug_info["frontend_files"] = os.listdir(abs_path)[:20]  # First 20 files
+            except Exception as e:
+                debug_info["error"] = str(e)
+
+    return debug_info
+
 @app.get("/api/leaderboard")
 async def get_global_leaderboard():
     from app.models.database import get_db
