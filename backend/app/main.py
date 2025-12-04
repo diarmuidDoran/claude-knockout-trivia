@@ -42,10 +42,6 @@ app.state.game_service = game_service
 app.include_router(rooms.router, prefix="/api/rooms", tags=["rooms"])
 app.include_router(game.router, prefix="/api/game", tags=["game"])
 
-@app.get("/")
-async def root():
-    return {"message": "Knockout Trivia API", "version": "1.0.0"}
-
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "knockout-trivia-api"}
