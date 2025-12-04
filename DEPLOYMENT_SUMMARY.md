@@ -30,17 +30,24 @@ git push origin main
 1. In project, click "+ New" → "Database" → "PostgreSQL"
 2. DATABASE_URL automatically configured
 
-### 4. Seed Database
+### 4. Database Seeding (Automatic! ✨)
+**Questions are seeded automatically on deployment!**
+- ✅ 1,000+ trivia questions
+- ✅ 500 haunting race questions
+- ✅ Runs on every deployment
+- ✅ Duplicates automatically skipped
+
+No manual seeding needed! Railway runs this on build:
 ```bash
-# Install Railway CLI
+python seed_questions.py && python load_haunting_race_questions.py
+```
+
+**(Optional) Manual seeding via Railway CLI:**
+```bash
 npm install -g @railway/cli
-
-# Login and link
-railway login
-railway link
-
-# Run seeding
+railway login && railway link
 railway run python backend/seed_questions.py
+railway run python backend/load_haunting_race_questions.py
 ```
 
 ### 5. Open Your App
@@ -54,12 +61,14 @@ https://your-app.railway.app
 
 ✅ Detects Python project
 ✅ Installs from `backend/requirements.txt`
+✅ **Seeds all questions (trivia + haunting race)**
 ✅ Sets PORT environment variable
 ✅ Provides PostgreSQL with DATABASE_URL
 ✅ Runs health checks on `/health`
 ✅ Serves frontend from `/`
 ✅ Enables WebSocket support
 ✅ Provides free HTTPS
+✅ Auto-redeploys on git push
 
 ---
 
