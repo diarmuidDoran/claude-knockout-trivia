@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Knockout Trivia - Join Game</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/game-styles.css">
+    <link rel="stylesheet" href="css/mini-games.css">
+    <link rel="stylesheet" href="css/haunting-race.css">
+    <style>
+        /* Additional mobile-specific styles */
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-connected { background: #4CAF50; }
+        .status-disconnected { background: #f44336; }
+        .status-connecting { background: #ff9800; }
+    </style>
+</head>
+<body>
+    <!-- Join Screen -->
+    <div id="join-screen" class="screen">
+        <div class="container">
+            <div class="header">
+                <div class="logo">🎯</div>
+                <h1>Knockout Trivia</h1>
+                <p>Join a game room!</p>
+            </div>
+
+            <div class="join-section">
+                <h3>Join Game Room</h3>
+                <div class="input-group">
+                    <label for="room-code">Room Code</label>
+                    <input
+                        type="text"
+                        id="room-code"
+                        placeholder="Enter 4-letter code"
+                        maxlength="4"
+                        autocomplete="off"
+                        class="form-input"
+                        style="text-transform: uppercase;"
+                    >
+                </div>
+
+                <div class="input-group">
+                    <label for="player-name">Your Name (letters only)</label>
+                    <input
+                        type="text"
+                        id="player-name"
+                        placeholder="Enter your name"
+                        maxlength="15"
+                        autocomplete="off"
+                        class="form-input"
+                        style="text-transform: uppercase;"
+                        pattern="[A-Za-z]+"
+                        title="Please use letters only"
+                    >
+                </div>
+
+                <button class="btn btn-primary" id="join-game-btn">
+                    🎮 Join Game
+                </button>
+
+                <!-- Resume Session Button (shown when session exists) -->
+                <button class="btn btn-success hidden" id="resume-session-btn" style="margin-top: 15px;">
+                    🔄 Resume Your Session
+                </button>
+
+                <p class="help-text">
+                    Get the room code from the TV screen
+                </p>
+
+                <div style="margin-top: 20px; padding: 10px; background: #f0f0f0; border-radius: 5px;">
+                    <small>
+                        <span id="connection-indicator" class="status-indicator status-disconnected"></span>
+                        <span id="connection-text">Ready</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Waiting Room Screen -->
+    <div id="waiting-screen" class="screen hidden">
+        <div class="container">
+            <div class="header">
+                <div class="logo">🎯</div>
+                <h2>Waiting Room</h2>
+                <div class="room-info">
+                    <p>Room: <span id="mobile-room-code" class="room-code-display">----</span></p>
+                </div>
+            </div>
+
+            <div class="waiting-content">
+                <div class="player-info">
+                    <h3>You are: <span id="mobile-player-name" class="highlight">Player</span></h3>
+                    <div id="vip-status" class="vip-status hidden">
+                        <span class="vip-badge">👑 VIP Player</span>
+                        <p>You can start the game when ready!</p>
+                    </div>
+                </div>
+
+                <div class="players-section">
+                    <h3>Players in Room (<span id="mobile-player-count">0</span>/10)</h3>
+                    <div id="mobile-players-list" class="players-list">
+                        <!-- Players will be populated here -->
+                    </div>
+                </div>
+
+                <div class="game-controls">
+                    <button id="start-game-btn" class="btn btn-primary hidden">
+                        🚀 Start Game
+                    </button>
+                    <div id="waiting-message" class="waiting-message">
+                        Waiting for more players...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen hidden">
+        <div class="container">
+            <div class="game-header">
+                <!-- Timer removed - now only shown on TV screen -->
+                <div class="score-display" style="margin: 20px auto; text-align: center; font-size: 1.5em;">
+                    Score: <span id="player-score">0</span>
+                </div>
+            </div>
+
+            <div id="question-container">
+                <div class="category-badge" id="question-category">General</div>
+                <h2 id="question-text" class="question-text">Loading question...</h2>
+
+                <div id="answers-container" class="answers-grid">
+                    <!-- Answer buttons will be populated here -->
+                </div>
+            </div>
+
+            <div id="result-container" class="hidden">
+                <div class="result-icon" id="result-icon"></div>
+                <h3 id="result-message"></h3>
+                <p>Points earned: <span id="points-earned">0</span></p>
+                <p>Total score: <span id="total-score">0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="game-over-screen" class="screen hidden">
+        <div class="container">
+            <div class="header">
+                <div class="logo">🏆</div>
+                <h1>Game Over!</h1>
+            </div>
+
+            <div class="game-over-content">
+                <div id="player-rank-display" class="player-rank-card">
+                    <div class="rank-position">You placed: <span id="player-final-rank">1st</span></div>
+                    <div class="rank-score">Final Score: <span id="player-final-score">0</span> pts</div>
+                </div>
+
+                <div class="final-results-section">
+                    <h3>Final Standings</h3>
+                    <div id="mobile-final-leaderboard" class="final-standings-mobile">
+                        <!-- Final standings populated here -->
+                    </div>
+                </div>
+
+                <div class="game-options" id="vip-game-options" style="display: none;">
+                    <button id="mobile-rematch-btn" class="btn btn-primary">
+                        🔄 Rematch
+                    </button>
+                    <button id="mobile-finish-btn" class="btn btn-secondary">
+                        🏠 Finish Game
+                    </button>
+                </div>
+
+                <div class="waiting-message" id="waiting-vip-message" style="display: none;">
+                    Waiting for VIP to decide...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Haunting Race Screen -->
+    <div id="haunting-race-screen" class="haunting-race-screen hidden">
+        <div class="haunting-race-header">
+            <h1 class="haunting-race-title">🏁 Haunting Race</h1>
+            <p class="haunting-race-subtitle">Reach the finish line!</p>
+        </div>
+
+        <div class="race-track-container">
+            <div class="race-track">
+                <!-- Race track columns populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="haunting-race-question-section">
+            <div class="question-header">
+                <span class="question-number"></span>
+                <span class="question-timer"></span>
+            </div>
+            <div class="question-topic"></div>
+            <div class="race-instructions" style="background: #e3f2fd; padding: 10px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #2196F3;">
+                <p style="margin: 0; font-size: 0.9em; color: #333;">
+                    <strong>How to Play:</strong> Select all statements that are TRUE. More correct answers = more spaces moved!
+                </p>
+            </div>
+            <div class="statements-container">
+                <!-- Statements populated by JavaScript -->
+            </div>
+            <button class="submit-answer-btn" disabled>Select statements to continue</button>
+        </div>
+
+        <div class="haunting-race-results" style="display: none;">
+            <!-- Results populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="notification hidden">
+        <span class="notification-text"></span>
+    </div>
+
+    <!-- Mini-Game Container -->
+    <div id="mini-game-container"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/websocket.js"></script>
+    <script src="js/mini-games.js"></script>
+    <script src="js/haunting-race.js"></script>
+    <script src="js/mobile-game.js"></script>
+    <script>
+        // Simple mobile app without complex dependencies
+        console.log('Mobile app starting...');
+
+        let currentRoom = null;
+        let playerName = null;
+        let playerId = null;
+        let isVIP = false;
+        let wsManager = null;
+        let sessionToken = null;
+        let miniGamesManager = null;
+        let hauntingRaceManager = null;
+
+        // Auto-uppercase room code
+        document.getElementById('room-code').addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+
+        // Auto-uppercase player name and allow letters only
+        document.getElementById('player-name').addEventListener('input', (e) => {
+            // Remove non-letter characters and convert to uppercase
+            e.target.value = e.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase();
+        });
+
+        // Update connection status
+        function updateConnectionStatus(status, text) {
+            const indicator = document.getElementById('connection-indicator');
+            const textEl = document.getElementById('connection-text');
+            indicator.className = `status-indicator status-${status}`;
+            if (textEl) textEl.textContent = text;
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const text = notification.querySelector('.notification-text');
+            text.textContent = message;
+            notification.classList.remove('hidden');
+            setTimeout(() => notification.classList.add('hidden'), 3000);
+        }
+
+        // Join game button handler
+        document.getElementById('join-game-btn').addEventListener('click', async () => {
+            const roomCode = document.getElementById('room-code').value.trim();
+            const name = document.getElementById('player-name').value.trim();
+
+            console.log('Join button clicked', { roomCode, name });
+
+            if (!roomCode || !name) {
+                showNotification('Please enter both room code and your name', 'error');
+                return;
+            }
+
+            if (roomCode.length !== 4) {
+                showNotification('Room code must be 4 letters', 'error');
+                return;
+            }
+
+            updateConnectionStatus('connecting', 'Joining...');
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/api/rooms/join`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        player_name: name,
+                        room_code: roomCode
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Joined successfully:', data);
+
+                    currentRoom = roomCode;
+                    playerName = name;
+                    playerId = data.player_id;
+                    isVIP = data.is_vip || data.player.is_vip;
+                    sessionToken = data.session_token;
+
+                    // Store session token in localStorage
+                    localStorage.setItem('trivia_session_token', sessionToken);
+                    localStorage.setItem('trivia_player_name', playerName);
+
+                    // Show waiting screen
+                    document.getElementById('join-screen').classList.add('hidden');
+                    document.getElementById('waiting-screen').classList.remove('hidden');
+                    document.getElementById('mobile-room-code').textContent = roomCode;
+                    document.getElementById('mobile-player-name').textContent = name;
+                    document.getElementById('mobile-player-count').textContent = data.players.length;
+
+                    if (isVIP) {
+                        document.getElementById('vip-status').classList.remove('hidden');
+                        document.getElementById('start-game-btn').classList.remove('hidden');
+                    }
+
+                    // Update players list
+                    updatePlayersList(data.players);
+
+                    // Connect WebSocket
+                    wsManager = new WebSocketManager();
+                    wsManager.connect(roomCode, playerId);
+                    updateConnectionStatus('connected', 'Connected');
+
+                    // Initialize Mini-Games Manager
+                    miniGamesManager = new MiniGamesManager(wsManager);
+                    miniGamesManager.setPlayerId(playerId);
+
+                    // Initialize Haunting Race Manager
+                    hauntingRaceManager = new HauntingRaceManager(wsManager, playerId, false);
+
+                    // Setup WebSocket listeners
+                    setupWebSocketListeners();
+
+                } else {
+                    const error = await response.json();
+                    showNotification(error.detail || 'Failed to join room', 'error');
+                    updateConnectionStatus('disconnected', 'Failed');
+                }
+            } catch (error) {
+                console.error('Join error:', error);
+                showNotification('Network error: ' + error.message, 'error');
+                updateConnectionStatus('disconnected', 'Error');
+            }
+        });
+
+        // Update players list
+        function updatePlayersList(players) {
+            const container = document.getElementById('mobile-players-list');
+            const countEl = document.getElementById('mobile-player-count');
+
+            countEl.textContent = players.length;
+            container.innerHTML = '';
+
+            players.forEach(player => {
+                const div = document.createElement('div');
+                div.className = 'player-item';
+                div.innerHTML = `
+                    <span>${player.name}</span>
+                    ${player.is_vip ? '<span class="vip-badge">👑 VIP</span>' : ''}
+                    ${player.id === playerId ? '<span class="badge">You</span>' : ''}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Start game button (VIP only)
+        document.getElementById('start-game-btn').addEventListener('click', async () => {
+            if (!isVIP) {
+                showNotification('Only VIP can start the game', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/api/game/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        room_code: currentRoom,
+                        player_id: playerId
+                    })
+                });
+
+                if (response.ok) {
+                    showNotification('Game starting!');
+                } else {
+                    const error = await response.json();
+                    showNotification(error.detail || 'Failed to start game', 'error');
+                }
+            } catch (error) {
+                console.error('Start game error:', error);
+                showNotification('Network error', 'error');
+            }
+        });
+
+        // Rematch button handler (VIP only)
+        document.getElementById('mobile-rematch-btn').addEventListener('click', async () => {
+            if (!isVIP) {
+                showNotification('Only VIP can start a rematch', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/api/game/rematch`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        room_code: currentRoom,
+                        player_id: playerId
+                    })
+                });
+
+                if (response.ok) {
+                    showNotification('Starting rematch!');
+                } else {
+                    const error = await response.json();
+                    showNotification(error.detail || 'Failed to start rematch', 'error');
+                }
+            } catch (error) {
+                console.error('Rematch error:', error);
+                showNotification('Network error', 'error');
+            }
+        });
+
+        // Finish game button handler (VIP only)
+        document.getElementById('mobile-finish-btn').addEventListener('click', async () => {
+            if (!isVIP) {
+                showNotification('Only VIP can finish the game', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/api/game/finish`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        room_code: currentRoom,
+                        player_id: playerId
+                    })
+                });
+
+                if (response.ok) {
+                    showNotification('Game finished!');
+                } else {
+                    const error = await response.json();
+                    showNotification(error.detail || 'Failed to finish game', 'error');
+                }
+            } catch (error) {
+                console.error('Finish game error:', error);
+                showNotification('Network error', 'error');
+            }
+        });
+
+        // Handle rematch started event
+        function handleRematchStarted(data) {
+            showNotification(data.message || 'Rematch starting!');
+
+            // Hide game over screen, show waiting screen
+            document.getElementById('game-over-screen').classList.add('hidden');
+            document.getElementById('waiting-screen').classList.remove('hidden');
+
+            // Reset player score display
+            playerScore = 0;
+            document.getElementById('player-score').textContent = '0';
+        }
+
+        // Handle game finished event
+        function handleGameFinished(data) {
+            showNotification(data.message || 'Game finished!');
+
+            // Disconnect WebSocket
+            if (wsManager) {
+                wsManager.disconnect();
+            }
+
+            // Hide all screens, show join screen
+            document.getElementById('game-over-screen').classList.add('hidden');
+            document.getElementById('waiting-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('join-screen').classList.remove('hidden');
+
+            // Reset state
+            currentRoom = null;
+            playerName = null;
+            playerId = null;
+            isVIP = false;
+            sessionToken = null;
+
+            // Clear session from localStorage
+            localStorage.removeItem('trivia_session_token');
+            localStorage.removeItem('trivia_player_name');
+
+            // Clear input fields
+            document.getElementById('room-code').value = '';
+            document.getElementById('player-name').value = '';
+
+            updateConnectionStatus('disconnected', 'Ready');
+        }
+
+        // Restore session on page load if token exists
+        async function restoreSession() {
+            const savedToken = localStorage.getItem('trivia_session_token');
+            if (!savedToken) {
+                console.log('No saved session found');
+                return false;
+            }
+
+            console.log('Attempting to restore session...');
+            updateConnectionStatus('connecting', 'Restoring session...');
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/api/rooms/restore-session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_token: savedToken })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Session restored:', data);
+
+                    currentRoom = data.room_code;
+                    playerName = data.player.name;
+                    playerId = data.player_id;
+                    isVIP = data.is_vip;
+                    sessionToken = savedToken;
+
+                    // Hide the resume button since we're now restoring
+                    document.getElementById('resume-session-btn').classList.add('hidden');
+
+                    // Determine which screen to show based on game state
+                    const gameState = data.room.game_state.toUpperCase();
+                    const isHauntingRaceActive = data.room.is_haunting_race_active || false;
+                    console.log('Game state:', gameState, 'isVIP:', isVIP, 'Haunting Race:', isHauntingRaceActive);
+
+                    // Check if haunting race is active first
+                    if (isHauntingRaceActive && data.haunting_race_state) {
+                        console.log('[RESTORE] Haunting race is active, restoring state...');
+
+                        // Hide all other screens
+                        document.getElementById('join-screen').classList.add('hidden');
+                        document.getElementById('waiting-screen').classList.add('hidden');
+                        document.getElementById('game-screen').classList.add('hidden');
+                        document.getElementById('game-over-screen').classList.add('hidden');
+
+                        // Connect to WebSocket
+                        wsManager.connect(currentRoom, playerId);
+
+                        // Wait for WebSocket to connect, then restore haunting race
+                        wsManager.once('connected', () => {
+                            console.log('[RESTORE] WebSocket connected, initializing haunting race...');
+
+                            // Initialize haunting race with restored state
+                            const raceState = data.haunting_race_state;
+                            hauntingRaceManager.isActive = true;
+                            hauntingRaceManager.playerId = playerId;
+                            hauntingRaceManager.raceData = {
+                                unicorn_id: raceState.unicorn_id,
+                                ghost_ids: raceState.ghost_ids,
+                                players: raceState.players,
+                                initial_positions: raceState.initial_positions
+                            };
+                            hauntingRaceManager.positions = raceState.positions;
+                            hauntingRaceManager.isUnicorn = (raceState.unicorn_id == playerId);
+
+                            // Show the race screen
+                            hauntingRaceManager.showRaceScreen();
+
+                            // If there's a current question, show it
+                            if (raceState.current_question && raceState.phase === 'question') {
+                                hauntingRaceManager.handleQuestion({
+                                    data: raceState.current_question
+                                });
+                            }
+                        });
+
+                        updateConnectionStatus('connecting', 'Connecting to Haunting Race...');
+                        console.log('[RESTORE] Haunting race restoration initiated');
+                    } else if (gameState === 'WAITING') {
+                        console.log('[RESTORE] Showing waiting screen...');
+
+                        // Hide ALL screens first to ensure clean state
+                        const joinScreen = document.getElementById('join-screen');
+                        const gameScreen = document.getElementById('game-screen');
+                        const gameOverScreen = document.getElementById('game-over-screen');
+                        const waitingScreen = document.getElementById('waiting-screen');
+
+                        console.log('[RESTORE] Screen elements:', {
+                            joinScreen: !!joinScreen,
+                            gameScreen: !!gameScreen,
+                            gameOverScreen: !!gameOverScreen,
+                            waitingScreen: !!waitingScreen
+                        });
+
+                        // Force hide all screens with display: none
+                        joinScreen.style.display = 'none';
+                        gameScreen.style.display = 'none';
+                        gameOverScreen.style.display = 'none';
+                        joinScreen.classList.add('hidden');
+                        gameScreen.classList.add('hidden');
+                        gameOverScreen.classList.add('hidden');
+
+                        console.log('[RESTORE] Hidden all screens, now showing waiting screen');
+
+                        // Show waiting screen
+                        waitingScreen.style.display = 'flex';
+                        waitingScreen.classList.remove('hidden');
+
+                        console.log('[RESTORE] Waiting screen display:', {
+                            display: waitingScreen.style.display,
+                            hasHiddenClass: waitingScreen.classList.contains('hidden')
+                        });
+
+                        // Update waiting screen content
+                        document.getElementById('mobile-room-code').textContent = currentRoom;
+                        document.getElementById('mobile-player-name').textContent = playerName;
+                        document.getElementById('mobile-player-count').textContent = data.players.length;
+
+                        if (isVIP) {
+                            console.log('[RESTORE] Player is VIP - showing start button');
+                            document.getElementById('vip-status').classList.remove('hidden');
+                            document.getElementById('start-game-btn').classList.remove('hidden');
+                        } else {
+                            // Ensure VIP elements are hidden if not VIP
+                            document.getElementById('vip-status').classList.add('hidden');
+                            document.getElementById('start-game-btn').classList.add('hidden');
+                        }
+
+                        updatePlayersList(data.players);
+                        console.log('[RESTORE] Waiting screen setup complete');
+                    } else if (gameState === 'ACTIVE' || gameState === 'STARTING') {
+                        console.log('Showing game screen...');
+
+                        // Hide ALL screens first to ensure clean state
+                        const joinScreen = document.getElementById('join-screen');
+                        const waitingScreen = document.getElementById('waiting-screen');
+                        const gameOverScreen = document.getElementById('game-over-screen');
+                        const gameScreen = document.getElementById('game-screen');
+
+                        // Force hide all screens with display: none
+                        joinScreen.style.display = 'none';
+                        waitingScreen.style.display = 'none';
+                        gameOverScreen.style.display = 'none';
+                        joinScreen.classList.add('hidden');
+                        waitingScreen.classList.add('hidden');
+                        gameOverScreen.classList.add('hidden');
+
+                        // Show game screen
+                        gameScreen.style.display = 'flex';
+                        gameScreen.classList.remove('hidden');
+                        document.getElementById('player-score').textContent = data.player.total_score;
+
+                        // If there's a current question, display it
+                        if (data.room.current_question) {
+                            handleNewQuestion({ question: data.room.current_question });
+                        }
+
+                        console.log('Game screen setup complete');
+                    } else if (gameState === 'FINISHED') {
+                        // Game finished, clear session and show join screen
+                        localStorage.removeItem('trivia_session_token');
+                        localStorage.removeItem('trivia_player_name');
+                        updateConnectionStatus('disconnected', 'Ready');
+                        return;
+                    }
+
+                    // Connect WebSocket
+                    wsManager = new WebSocketManager();
+                    wsManager.connect(currentRoom, playerId);
+                    updateConnectionStatus('connected', 'Reconnected');
+
+                    // Initialize Mini-Games Manager
+                    miniGamesManager = new MiniGamesManager(wsManager);
+                    miniGamesManager.setPlayerId(playerId);
+
+                    // Initialize Haunting Race Manager
+                    hauntingRaceManager = new HauntingRaceManager(wsManager, playerId, false);
+
+                    // Setup WebSocket listeners
+                    setupWebSocketListeners();
+
+                    showNotification('Session restored successfully!');
+                    return true;
+                } else {
+                    const error = await response.json();
+                    console.log('Session restoration failed:', error);
+                    localStorage.removeItem('trivia_session_token');
+                    localStorage.removeItem('trivia_player_name');
+                    updateConnectionStatus('disconnected', 'Ready');
+                    checkForSavedSession(); // Update UI to remove resume button
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error restoring session:', error);
+                localStorage.removeItem('trivia_session_token');
+                localStorage.removeItem('trivia_player_name');
+                updateConnectionStatus('disconnected', 'Ready');
+                checkForSavedSession(); // Update UI to remove resume button
+                return false;
+            }
+        }
+
+        // Setup WebSocket listeners (extracted from join handler)
+        function setupWebSocketListeners() {
+            wsManager.on('player_joined', (data) => {
+                console.log('Player joined:', data);
+                if (data.players) updatePlayersList(data.players);
+            });
+
+            wsManager.on('player_left', (data) => {
+                console.log('Player left:', data);
+                if (data.players) updatePlayersList(data.players);
+            });
+
+            wsManager.on('game_started', (data) => {
+                console.log('Game started!', data);
+                showNotification('Game is starting!');
+            });
+
+            wsManager.on('new_question', (data) => {
+                console.log('New question!', data);
+                handleNewQuestion(data);
+            });
+
+            wsManager.on('question_results', (data) => {
+                console.log('Question results!', data);
+                handleQuestionResults(data);
+            });
+
+            wsManager.on('timer_expired', (data) => {
+                console.log('Timer expired!', data);
+                handleTimerExpired(data);
+            });
+
+            wsManager.on('game_ended', (data) => {
+                handleGameEnded(data);
+            });
+
+            wsManager.on('rematch_started', (data) => {
+                console.log('Rematch started!', data);
+                handleRematchStarted(data);
+            });
+
+            wsManager.on('game_finished', (data) => {
+                console.log('Game finished!', data);
+                handleGameFinished(data);
+            });
+        }
+
+        // Resume Session button handler
+        document.getElementById('resume-session-btn').addEventListener('click', async () => {
+            console.log('Resume session button clicked');
+            updateConnectionStatus('connecting', 'Restoring session...');
+            const success = await restoreSession();
+            if (!success) {
+                updateConnectionStatus('disconnected', 'Failed to restore');
+                showNotification('Could not restore session. Session may have expired.', 'error');
+            }
+        });
+
+        // Check if there's a saved session token and show resume button
+        function checkForSavedSession() {
+            const savedToken = localStorage.getItem('trivia_session_token');
+            const savedPlayerName = localStorage.getItem('trivia_player_name');
+            const resumeBtn = document.getElementById('resume-session-btn');
+
+            if (savedToken && savedPlayerName) {
+                console.log('Found saved session for player:', savedPlayerName);
+                resumeBtn.classList.remove('hidden');
+                // Update help text to mention resume option
+                document.querySelector('.help-text').innerHTML = `
+                    Found a saved session for <strong>${savedPlayerName}</strong>!<br>
+                    Click "Resume Your Session" to continue, or join a new game below.
+                `;
+            } else {
+                resumeBtn.classList.add('hidden');
+                document.querySelector('.help-text').textContent = 'Get the room code from the TV screen';
+            }
+        }
+
+        console.log('Mobile app initialized');
+        updateConnectionStatus('disconnected', 'Ready');
+
+        // Check for saved session immediately and show resume button if available
+        checkForSavedSession();
+
+        // Note: Automatic restoration is disabled - users must click "Resume Your Session" button
+        // This gives users more control over when to resume their session
+    </script>
+</body>
+</html>

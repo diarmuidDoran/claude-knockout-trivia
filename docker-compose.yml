@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: knockout-trivia-db
+    environment:
+      POSTGRES_DB: knockout_trivia
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - trivia-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis for session management and real-time features
+  redis:
+    image: redis:7-alpine
+    container_name: knockout-trivia-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - trivia-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend
+  backend:
+    build: ./backend
+    container_name: knockout-trivia-api
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/knockout_trivia
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY: your-secret-key-here-change-in-production
+      DEBUG: "True"
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/haunting_race_questions.json:/app/haunting_race_questions.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - trivia-network
+    restart: unless-stopped
+
+  # Nginx web server for frontend
+  frontend:
+    image: nginx:alpine
+    container_name: knockout-trivia-frontend
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - trivia-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  trivia-network:
+    driver: bridge

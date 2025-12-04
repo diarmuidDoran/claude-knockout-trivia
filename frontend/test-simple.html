@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Knockout Trivia - Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        .screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .container {
+            flex: 1;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .join-form {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #444;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+        }
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="screen">
+        <div class="container">
+            <div class="loading-content">
+                <div class="logo">🎯</div>
+                <h1>Knockout Trivia</h1>
+                <p>Loading...</p>
+                <p id="debug-info">Debug: Page loaded</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join Room Screen -->
+    <div id="join-screen" class="screen hidden">
+        <div class="container">
+            <div class="header">
+                <div class="logo">🎯</div>
+                <h1>Knockout Trivia</h1>
+                <p>Join a game to get started!</p>
+            </div>
+
+            <form class="join-form" id="join-form">
+                <div class="input-group">
+                    <label for="player-name">Your Name (letters only)</label>
+                    <input type="text" id="player-name" placeholder="Enter your name" maxlength="20" pattern="[A-Za-z]+" title="Please use letters only" style="text-transform: uppercase;" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="room-code">Room Code</label>
+                    <input type="text" id="room-code" placeholder="MYXARQ" maxlength="6" style="text-transform: uppercase;" required>
+                </div>
+
+                <button type="submit" class="btn" id="join-btn">
+                    Join Game
+                </button>
+            </form>
+
+            <div id="join-result" style="margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.9); border-radius: 10px; display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        console.log('Test page script loaded');
+        
+        let debugCounter = 0;
+        function updateDebug(message) {
+            debugCounter++;
+            const debugEl = document.getElementById('debug-info');
+            if (debugEl) {
+                debugEl.textContent = `Debug ${debugCounter}: ${message}`;
+            }
+            console.log(`Debug ${debugCounter}: ${message}`);
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDebug('DOM loaded');
+
+            // Auto-uppercase player name and allow letters only
+            const playerNameInput = document.getElementById('player-name');
+            if (playerNameInput) {
+                playerNameInput.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase();
+                });
+            }
+            
+            // Auto-fill room code
+            document.getElementById('room-code').value = 'MYXARQ';
+            
+            // Show join screen after 2 seconds
+            setTimeout(() => {
+                updateDebug('Switching to join screen');
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('join-screen').classList.remove('hidden');
+            }, 2000);
+            
+            // Handle form submission
+            document.getElementById('join-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                updateDebug('Form submitted');
+                
+                const name = document.getElementById('player-name').value.trim();
+                const code = document.getElementById('room-code').value.trim().toUpperCase();
+                const resultDiv = document.getElementById('join-result');
+                
+                updateDebug(`Joining: ${name} -> ${code}`);
+                
+                try {
+                    const response = await fetch('http://localhost:8000/api/rooms/join', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            player_name: name,
+                            room_code: code
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    updateDebug(`API response: ${response.status}`);
+                    
+                    if (response.ok) {
+                        resultDiv.innerHTML = `<p style="color: green;">✅ Successfully joined room ${code}!</p>
+                                              <p>Player ID: ${data.player_id}</p>
+                                              <p>Message: ${data.message}</p>`;
+                    } else {
+                        resultDiv.innerHTML = `<p style="color: red;">❌ Error: ${data.detail}</p>`;
+                    }
+                    
+                    resultDiv.style.display = 'block';
+                    
+                } catch (error) {
+                    updateDebug(`Error: ${error.message}`);
+                    resultDiv.innerHTML = `<p style="color: red;">❌ Network error: ${error.message}</p>`;
+                    resultDiv.style.display = 'block';
+                }
+            });
+            
+            updateDebug('Event listeners setup complete');
+        });
+        
+        updateDebug('Script execution complete');
+    </script>
+</body>
+</html>

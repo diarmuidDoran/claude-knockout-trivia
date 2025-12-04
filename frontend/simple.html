@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 100%;
+        }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-size: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Knockout Trivia</h1>
+        <p>Simple version for testing</p>
+        
+        <form id="simple-join-form">
+            <label for="name">Your Name (letters only):</label>
+            <input type="text" id="name" placeholder="Enter your name" maxlength="15" pattern="[A-Za-z]+" title="Please use letters only" style="text-transform: uppercase;" required>
+            
+            <label for="code">Room Code:</label>
+            <input type="text" id="code" placeholder="MYXARQ" maxlength="6" style="text-transform: uppercase;" required>
+            
+            <button type="submit" class="btn">Join Game</button>
+        </form>
+        
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        console.log('Simple test page loaded');
+
+        // Auto-uppercase player name and allow letters only
+        document.getElementById('name').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase();
+        });
+
+        document.getElementById('simple-join-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const code = document.getElementById('code').value.trim().toUpperCase();
+            const resultDiv = document.getElementById('result');
+            
+            console.log('Attempting to join:', { name, code });
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/rooms/join', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        player_name: name,
+                        room_code: code
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('Response:', data);
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<p style="color: green;">✅ Successfully joined room ${code}!</p>
+                                          <p>Player ID: ${data.player_id}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p style="color: red;">❌ Error: ${data.detail}</p>`;
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<p style="color: red;">❌ Network error: ${error.message}</p>`;
+            }
+        });
+        
+        // Auto-fill the room code for testing
+        document.getElementById('code').value = 'MYXARQ';
+        
+        console.log('Simple test page ready');
+    </script>
+</body>
+</html>

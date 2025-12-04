@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini-Games Tester - Knockout Trivia</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .test-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2em;
+        }
+
+        .test-header p {
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .control-panel h2 {
+            margin: 0 0 20px 0;
+            font-size: 1.3em;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        .control-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .control-group input,
+        .control-group select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 16px;
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            outline: 2px solid #4CAF50;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .test-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .test-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .test-btn.primary {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .test-btn.secondary {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .test-btn.warning {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            color: white;
+        }
+
+        .mobile-screens-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .mobile-screen {
+            background: #1a1a1a;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-screen::before {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            margin: 0 auto 15px;
+        }
+
+        .mobile-screen-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .player-badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .player-badge.at-risk {
+            background: #f44336;
+            color: white;
+        }
+
+        .player-badge.safe {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .player-badge.ghost {
+            background: #9E9E9E;
+            color: white;
+        }
+
+        .mobile-content {
+            min-height: 400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .mini-game-container {
+            display: block !important;
+        }
+
+        /* Quick Math specific styles for test page */
+        .quick-math-game {
+            text-align: center;
+        }
+
+        .quick-math-game h2 {
+            margin: 0 0 10px 0;
+        }
+
+        .score-display {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .math-question-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .math-question {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .answer-input-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .math-answer-input {
+            width: 100px;
+            padding: 15px;
+            font-size: 1.5em;
+            text-align: center;
+            border: none;
+            border-radius: 8px;
+        }
+
+        .submit-answer-btn {
+            padding: 15px 25px;
+            font-size: 1em;
+            font-weight: bold;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .submit-answer-btn:hover {
+            background: #45a049;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 30px;
+        }
+
+        .feedback.correct {
+            color: #4CAF50;
+        }
+
+        .feedback.incorrect {
+            color: #f44336;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            opacity: 0.9;
+        }
+
+        .game-mode-info {
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        /* Pattern Tiles styles */
+        .tile-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            max-width: 200px;
+            margin: 15px auto;
+        }
+
+        .tile {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tile-white {
+            background: #fff;
+        }
+
+        .tile-blue {
+            background: #2196F3;
+        }
+
+        .tile.interactive:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Chalices styles */
+        .chalices-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .chalice {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chalice:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .chalice.selected {
+            background: rgba(76, 175, 80, 0.3);
+            border: 2px solid #4CAF50;
+        }
+
+        .chalice.poisoned {
+            background: rgba(156, 39, 176, 0.3);
+            border: 2px solid #9C27B0;
+        }
+
+        .chalice-icon {
+            font-size: 3em;
+        }
+
+        .chalice-label {
+            margin-top: 8px;
+            font-size: 0.9em;
+        }
+
+        /* Position buttons for disadvantage */
+        .position-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 300px;
+            margin: 20px auto;
+        }
+
+        .position-btn {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .position-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .position-btn.selected {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: #4CAF50;
+        }
+
+        .position-number {
+            display: block;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .position-label {
+            display: block;
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
+
+        /* Action panels */
+        .action-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .action-panel h3 {
+            margin: 0 0 10px 0;
+        }
+
+        /* Game rules box */
+        .game-rules-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .game-rules-box h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.1em;
+        }
+
+        .rules-section {
+            margin-bottom: 15px;
+        }
+
+        .rules-section h4 {
+            margin: 0 0 8px 0;
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .rules-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .rules-list li {
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            opacity: 0.85;
+        }
+
+        /* Observer panel */
+        .observer-panel {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        /* Timer display */
+        .timer-display {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        #mini-game-timer-display {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        /* Status bar */
+        .status-bar {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        /* Log panel */
+        .log-panel {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 30px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-panel h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.1em;
+        }
+
+        .log-entry {
+            font-family: monospace;
+            font-size: 0.85em;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .log-entry.info { color: #64B5F6; }
+        .log-entry.success { color: #81C784; }
+        .log-entry.warning { color: #FFB74D; }
+        .log-entry.error { color: #E57373; }
+
+        /* Pulse animation */
+        .pulse-animation {
+            animation: pulse 0.3s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .score-increase {
+            animation: scoreUp 0.3s ease-out;
+        }
+
+        @keyframes scoreUp {
+            0% { transform: scale(1); color: inherit; }
+            50% { transform: scale(1.2); color: #4CAF50; }
+            100% { transform: scale(1); color: inherit; }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-header">
+        <h1>Mini-Games Tester</h1>
+        <p>Test all mini-games with configurable player setups</p>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <h2>Game Configuration</h2>
+        <div class="control-row">
+            <div class="control-group">
+                <label for="game-select">Select Mini-Game</label>
+                <select id="game-select">
+                    <option value="quick_math">Quick Math</option>
+                    <option value="pattern_tiles">Pattern Tiles</option>
+                    <option value="chalices">Chalices</option>
+                    <option value="worst_answer">Worst Answer</option>
+                    <option value="grab_more_points">Grab More Points</option>
+                    <option value="disadvantage">Playing at Disadvantage</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="at-risk-count">At-Risk Players</label>
+                <input type="number" id="at-risk-count" value="2" min="1" max="8">
+            </div>
+            <div class="control-group">
+                <label for="safe-count">Safe Players</label>
+                <input type="number" id="safe-count" value="2" min="0" max="8">
+            </div>
+            <div class="control-group">
+                <label for="ghost-count">Ghost Players</label>
+                <input type="number" id="ghost-count" value="1" min="0" max="8">
+            </div>
+        </div>
+        <div class="button-row">
+            <button class="test-btn primary" onclick="startTest()">Start Mini-Game Test</button>
+            <button class="test-btn secondary" onclick="resetTest()">Reset</button>
+            <button class="test-btn warning" onclick="simulateTimeout()">Simulate Timeout</button>
+        </div>
+    </div>
+
+    <!-- Mobile Screens Container -->
+    <div id="mobile-screens-container" class="mobile-screens-container">
+        <!-- Mobile screens will be dynamically generated -->
+    </div>
+
+    <!-- Log Panel -->
+    <div class="log-panel">
+        <h3>Event Log</h3>
+        <div id="log-entries"></div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // Test harness for mini-games
+        let players = [];
+        let currentGame = null;
+        let gameTimerInterval = null;
+        let gameStartTime = null;
+
+        // Mock WebSocket manager for testing
+        class MockWebSocketManager {
+            constructor() {
+                this.handlers = {};
+            }
+
+            on(event, handler) {
+                this.handlers[event] = handler;
+            }
+
+            send(data) {
+                log(`[WS SEND] ${JSON.stringify(data)}`, 'info');
+                // Process the action
+                if (data.type === 'mini_game_action') {
+                    this.processAction(data.action);
+                }
+            }
+
+            processAction(action) {
+                log(`[ACTION] Player action: ${action.type}`, 'success');
+            }
+
+            trigger(event, data) {
+                if (this.handlers[event]) {
+                    this.handlers[event](data);
+                }
+            }
+        }
+
+        // Logging function
+        function log(message, type = 'info') {
+            const logEntries = document.getElementById('log-entries');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEntries.insertBefore(entry, logEntries.firstChild);
+
+            // Limit log entries
+            while (logEntries.children.length > 50) {
+                logEntries.removeChild(logEntries.lastChild);
+            }
+        }
+
+        // Generate players based on configuration
+        function generatePlayers() {
+            players = [];
+            const atRiskCount = parseInt(document.getElementById('at-risk-count').value);
+            const safeCount = parseInt(document.getElementById('safe-count').value);
+            const ghostCount = parseInt(document.getElementById('ghost-count').value);
+
+            let id = 1;
+
+            // Generate at-risk players
+            for (let i = 0; i < atRiskCount; i++) {
+                players.push({
+                    id: id++,
+                    name: `At-Risk ${i + 1}`,
+                    role: 'at_risk',
+                    score: 0
+                });
+            }
+
+            // Generate safe players
+            for (let i = 0; i < safeCount; i++) {
+                players.push({
+                    id: id++,
+                    name: `Safe ${i + 1}`,
+                    role: 'safe',
+                    score: 0
+                });
+            }
+
+            // Generate ghost players
+            for (let i = 0; i < ghostCount; i++) {
+                players.push({
+                    id: id++,
+                    name: `Ghost ${i + 1}`,
+                    role: 'ghost',
+                    score: 0
+                });
+            }
+
+            log(`Generated ${players.length} players: ${atRiskCount} at-risk, ${safeCount} safe, ${ghostCount} ghost`, 'info');
+        }
+
+        // Create mobile screen for a player
+        function createMobileScreen(player) {
+            const container = document.getElementById('mobile-screens-container');
+
+            const screen = document.createElement('div');
+            screen.className = 'mobile-screen';
+            screen.id = `screen-${player.id}`;
+
+            screen.innerHTML = `
+                <div class="mobile-screen-header">
+                    <span>${player.name}</span>
+                    <span class="player-badge ${player.role}">${player.role.replace('_', ' ')}</span>
+                </div>
+                <div class="mobile-content" id="content-${player.id}">
+                    <!-- Mini-game content will be rendered here -->
+                </div>
+            `;
+
+            container.appendChild(screen);
+        }
+
+        // Start the test
+        function startTest() {
+            resetTest();
+            generatePlayers();
+
+            const gameName = document.getElementById('game-select').value;
+            log(`Starting mini-game test: ${gameName}`, 'success');
+
+            // Create mobile screens for each player
+            players.forEach(player => {
+                createMobileScreen(player);
+            });
+
+            // Initialize the game based on selection
+            switch (gameName) {
+                case 'quick_math':
+                    startQuickMathTest();
+                    break;
+                case 'pattern_tiles':
+                    startPatternTilesTest();
+                    break;
+                case 'chalices':
+                    startChalicesTest();
+                    break;
+                case 'worst_answer':
+                    startWorstAnswerTest();
+                    break;
+                case 'grab_more_points':
+                    startGrabMorePointsTest();
+                    break;
+                case 'disadvantage':
+                    startDisadvantageTest();
+                    break;
+            }
+        }
+
+        // Reset the test
+        function resetTest() {
+            const container = document.getElementById('mobile-screens-container');
+            container.innerHTML = '';
+            players = [];
+
+            if (gameTimerInterval) {
+                clearInterval(gameTimerInterval);
+                gameTimerInterval = null;
+            }
+
+            log('Test reset', 'warning');
+        }
+
+        // Simulate timeout
+        function simulateTimeout() {
+            if (gameTimerInterval) {
+                clearInterval(gameTimerInterval);
+                gameTimerInterval = null;
+            }
+            log('Timeout simulated - resolving game', 'warning');
+            resolveGame();
+        }
+
+        // ========== QUICK MATH ==========
+        function startQuickMathTest() {
+            currentGame = 'quick_math';
+            gameStartTime = Date.now();
+
+            const atRiskPlayers = players.filter(p => p.role === 'at_risk');
+            const safePlayers = players.filter(p => p.role === 'safe');
+
+            // Determine racers based on game mode
+            let racers;
+            let gameMode;
+            if (atRiskPlayers.length > 1) {
+                gameMode = 'at_risk_vs_at_risk';
+                racers = atRiskPlayers;
+            } else {
+                gameMode = 'at_risk_vs_safe';
+                racers = [...atRiskPlayers, ...safePlayers];
+            }
+
+            const racerIds = racers.map(p => p.id);
+
+            players.forEach(player => {
+                const content = document.getElementById(`content-${player.id}`);
+                const isRacer = racerIds.includes(player.id);
+
+                if (isRacer) {
+                    content.innerHTML = createQuickMathUI(player, gameMode, atRiskPlayers.length);
+                    setupQuickMathHandlers(player);
+                } else {
+                    content.innerHTML = `
+                        <div class="quick-math-game">
+                            <h2>Quick Math Race</h2>
+                            <div class="observer-panel">
+                                <h3>Observing</h3>
+                                <p>Watch the race unfold!</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            // Start game timer (45 seconds)
+            startGameTimer(45);
+        }
+
+        function createQuickMathUI(player, gameMode, atRiskCount) {
+            const modeDescription = gameMode === 'at_risk_vs_at_risk'
+                ? `${atRiskCount} at-risk players competing. Lowest score is eliminated!`
+                : 'At-risk player must place 1st to survive!';
+
+            return `
+                <div class="quick-math-game" data-player-id="${player.id}">
+                    <h2>Quick Math Race</h2>
+                    <p class="score-display">Your Score: <span id="score-${player.id}">0</span></p>
+
+                    <div class="math-question-container">
+                        <div id="question-${player.id}" class="math-question">
+                            <span class="math-question-text" id="question-text-${player.id}">Get Ready...</span>
+                        </div>
+                        <div class="answer-input-container">
+                            <input type="number" id="answer-input-${player.id}" class="math-answer-input"
+                                   placeholder="?" autocomplete="off" inputmode="numeric">
+                            <button id="submit-btn-${player.id}" class="submit-answer-btn">
+                                Submit
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-${player.id}"></div>
+                    </div>
+
+                    <div class="instructions">
+                        <p>Answer as many as you can!</p>
+                        <p class="game-mode-info">${modeDescription}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupQuickMathHandlers(player) {
+            const input = document.getElementById(`answer-input-${player.id}`);
+            const submitBtn = document.getElementById(`submit-btn-${player.id}`);
+
+            // Store question data
+            player.currentQuestion = null;
+            player.questionId = 0;
+
+            // Generate first question
+            setTimeout(() => generateQuickMathQuestion(player), 300);
+
+            // Handle Enter key
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    submitQuickMathAnswer(player);
+                }
+            });
+
+            // Handle submit button
+            submitBtn.addEventListener('click', () => {
+                submitQuickMathAnswer(player);
+            });
+        }
+
+        function generateQuickMathQuestion(player) {
+            const operations = ['+', '-', '×', '÷'];
+            const operation = operations[Math.floor(Math.random() * operations.length)];
+
+            let a, b, answer, question;
+
+            if (operation === '+') {
+                a = Math.floor(Math.random() * 50) + 1;
+                b = Math.floor(Math.random() * Math.min(99 - a, 50)) + 1;
+                answer = a + b;
+                question = `${a} + ${b}`;
+            } else if (operation === '-') {
+                a = Math.floor(Math.random() * 89) + 10;
+                b = Math.floor(Math.random() * (a - 1)) + 1;
+                answer = a - b;
+                question = `${a} - ${b}`;
+            } else if (operation === '×') {
+                a = Math.floor(Math.random() * 12) + 1;
+                b = Math.floor(Math.random() * 12) + 1;
+                answer = a * b;
+                question = `${a} × ${b}`;
+            } else {
+                const quotient = Math.floor(Math.random() * 12) + 1;
+                const maxDivisor = Math.floor(99 / quotient);
+                const divisor = Math.floor(Math.random() * Math.min(maxDivisor - 1, 11)) + 2;
+                a = divisor * quotient;
+                b = divisor;
+                answer = quotient;
+                question = `${a} ÷ ${b}`;
+            }
+
+            player.questionId++;
+            player.currentQuestion = { question, answer };
+
+            const questionText = document.getElementById(`question-text-${player.id}`);
+            const input = document.getElementById(`answer-input-${player.id}`);
+            const feedback = document.getElementById(`feedback-${player.id}`);
+
+            if (questionText) {
+                questionText.textContent = question + ' = ?';
+                questionText.classList.add('pulse-animation');
+                setTimeout(() => questionText.classList.remove('pulse-animation'), 300);
+            }
+
+            if (input) {
+                input.value = '';
+                input.focus();
+            }
+
+            if (feedback) {
+                feedback.textContent = '';
+                feedback.className = 'feedback';
+            }
+        }
+
+        function submitQuickMathAnswer(player) {
+            const input = document.getElementById(`answer-input-${player.id}`);
+            const feedback = document.getElementById(`feedback-${player.id}`);
+            const scoreEl = document.getElementById(`score-${player.id}`);
+
+            if (!input || !player.currentQuestion) return;
+
+            const answer = input.value.trim();
+            if (answer === '') return;
+
+            const isCorrect = parseInt(answer) === player.currentQuestion.answer;
+
+            if (isCorrect) {
+                player.score++;
+
+                if (feedback) {
+                    feedback.textContent = '✓ Correct!';
+                    feedback.className = 'feedback correct';
+                }
+
+                if (scoreEl) {
+                    scoreEl.textContent = player.score;
+                    scoreEl.classList.add('score-increase');
+                    setTimeout(() => scoreEl.classList.remove('score-increase'), 300);
+                }
+
+                log(`Player ${player.name} answered correctly! Score: ${player.score}`, 'success');
+            } else {
+                if (feedback) {
+                    feedback.textContent = `✗ Wrong! (${player.currentQuestion.answer})`;
+                    feedback.className = 'feedback incorrect';
+                }
+
+                log(`Player ${player.name} answered incorrectly. Correct: ${player.currentQuestion.answer}`, 'warning');
+            }
+
+            // Clear feedback and generate next question
+            setTimeout(() => {
+                if (feedback) {
+                    feedback.textContent = '';
+                    feedback.className = 'feedback';
+                }
+            }, 600);
+
+            setTimeout(() => generateQuickMathQuestion(player), 100);
+        }
+
+        // ========== PATTERN TILES ==========
+        function startPatternTilesTest() {
+            currentGame = 'pattern_tiles';
+
+            // Generate random pattern
+            const pattern = [];
+            for (let i = 0; i < 4; i++) {
+                const row = [];
+                for (let j = 0; j < 4; j++) {
+                    row.push(Math.random() > 0.5 ? 1 : 0);
+                }
+                pattern.push(row);
+            }
+
+            const atRiskPlayers = players.filter(p => p.role === 'at_risk');
+            const safePlayers = players.filter(p => p.role === 'safe');
+
+            // Determine competitors
+            let competitors;
+            if (atRiskPlayers.length > 1) {
+                competitors = atRiskPlayers;
+            } else {
+                competitors = [...atRiskPlayers, ...safePlayers];
+            }
+
+            const competitorIds = competitors.map(p => p.id);
+
+            // Show memorization phase
+            players.forEach(player => {
+                const content = document.getElementById(`content-${player.id}`);
+                const isCompeting = competitorIds.includes(player.id);
+
+                content.innerHTML = createPatternMemorizationUI(pattern, isCompeting);
+            });
+
+            log('Pattern Tiles: Memorization phase (10 seconds)', 'info');
+
+            // Transition to recreation phase after 10 seconds
+            setTimeout(() => {
+                log('Pattern Tiles: Recreation phase (30 seconds)', 'info');
+
+                players.forEach(player => {
+                    const content = document.getElementById(`content-${player.id}`);
+                    const isCompeting = competitorIds.includes(player.id);
+
+                    if (isCompeting) {
+                        content.innerHTML = createPatternRecreationUI(player);
+                        setupPatternTileHandlers(player, pattern);
+                    } else {
+                        content.innerHTML = `
+                            <div class="pattern-tiles-game">
+                                <h2>Pattern Tiles - Recreation Phase</h2>
+                                <div class="observer-panel">
+                                    <h3>Observing</h3>
+                                    <p>Watching players recreate the pattern...</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                startGameTimer(30);
+            }, 10000);
+        }
+
+        function createPatternMemorizationUI(pattern, isCompeting) {
+            return `
+                <div class="pattern-tiles-game">
+                    <h2>Pattern Tiles - Memorization</h2>
+                    <p>Study the pattern carefully!</p>
+
+                    <div class="tile-grid">
+                        ${renderTileGrid(pattern, false)}
+                    </div>
+
+                    ${isCompeting
+                        ? '<p>Your grid will appear in 10 seconds...</p>'
+                        : '<p>You are observing this mini-game</p>'}
+                </div>
+            `;
+        }
+
+        function createPatternRecreationUI(player) {
+            const emptyGrid = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+            player.grid = JSON.parse(JSON.stringify(emptyGrid));
+
+            return `
+                <div class="pattern-tiles-game" data-player-id="${player.id}">
+                    <h2>Pattern Tiles - Recreation</h2>
+                    <p>Recreate the pattern!</p>
+
+                    <div class="tile-grid" id="grid-${player.id}">
+                        ${renderTileGrid(emptyGrid, true, player.id)}
+                    </div>
+
+                    <button id="submit-pattern-${player.id}" class="submit-answer-btn" style="margin-top: 15px;">
+                        Submit Pattern
+                    </button>
+
+                    <div class="feedback" id="pattern-feedback-${player.id}"></div>
+                </div>
+            `;
+        }
+
+        function renderTileGrid(grid, isInteractive, playerId = null) {
+            let html = '';
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const tileValue = grid[i][j];
+                    const tileClass = tileValue === 1 ? 'tile-blue' : 'tile-white';
+                    const interactiveClass = isInteractive ? 'interactive' : '';
+                    const dataAttrs = isInteractive ? `data-row="${i}" data-col="${j}" data-player="${playerId}"` : '';
+
+                    html += `<div class="tile ${tileClass} ${interactiveClass}" ${dataAttrs}></div>`;
+                }
+            }
+            return html;
+        }
+
+        function setupPatternTileHandlers(player, originalPattern) {
+            const tiles = document.querySelectorAll(`[data-player="${player.id}"]`);
+            tiles.forEach(tile => {
+                tile.addEventListener('click', () => {
+                    const row = parseInt(tile.getAttribute('data-row'));
+                    const col = parseInt(tile.getAttribute('data-col'));
+
+                    player.grid[row][col] = player.grid[row][col] === 0 ? 1 : 0;
+
+                    if (player.grid[row][col] === 1) {
+                        tile.classList.remove('tile-white');
+                        tile.classList.add('tile-blue');
+                    } else {
+                        tile.classList.remove('tile-blue');
+                        tile.classList.add('tile-white');
+                    }
+                });
+            });
+
+            const submitBtn = document.getElementById(`submit-pattern-${player.id}`);
+            if (submitBtn) {
+                submitBtn.addEventListener('click', () => {
+                    // Calculate accuracy
+                    let correct = 0;
+                    for (let i = 0; i < 4; i++) {
+                        for (let j = 0; j < 4; j++) {
+                            if (player.grid[i][j] === originalPattern[i][j]) {
+                                correct++;
+                            }
+                        }
+                    }
+                    const accuracy = (correct / 16) * 100;
+                    player.score = accuracy;
+
+                    const feedback = document.getElementById(`pattern-feedback-${player.id}`);
+                    if (feedback) {
+                        feedback.textContent = `✓ Submitted! Accuracy: ${accuracy.toFixed(1)}%`;
+                        feedback.className = 'feedback correct';
+                    }
+
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Submitted ✓';
+
+                    log(`Player ${player.name} submitted pattern with ${accuracy.toFixed(1)}% accuracy`, 'success');
+                });
+            }
+        }
+
+        // ========== CHALICES ==========
+        function startChalicesTest() {
+            currentGame = 'chalices';
+
+            const atRiskPlayers = players.filter(p => p.role === 'at_risk');
+            const safePlayers = players.filter(p => p.role === 'safe');
+
+            players.forEach(player => {
+                const content = document.getElementById(`content-${player.id}`);
+
+                if (player.role === 'safe') {
+                    content.innerHTML = createChalicesPoisonerUI(player);
+                    setupChalicesHandlers(player, 'poison');
+                } else if (player.role === 'at_risk') {
+                    content.innerHTML = createChalicesTesterUI(player);
+                    setupChalicesHandlers(player, 'drink');
+                } else {
+                    content.innerHTML = `
+                        <div class="chalices-game">
+                            <h2>Chalices Game</h2>
+                            <div class="observer-panel">
+                                <h3>Ghost Observer</h3>
+                                <p>Watch the deadly game unfold!</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            startGameTimer(30);
+        }
+
+        function createChalicesPoisonerUI(player) {
+            return `
+                <div class="chalices-game" data-player-id="${player.id}">
+                    <h2>Chalices Game</h2>
+                    <p>You are a POISONER</p>
+
+                    <div class="chalices-container">
+                        <div class="chalice" data-chalice="0" data-player="${player.id}">
+                            <div class="chalice-icon">🍷</div>
+                            <div class="chalice-label">Chalice 1</div>
+                        </div>
+                        <div class="chalice" data-chalice="1" data-player="${player.id}">
+                            <div class="chalice-icon">🍷</div>
+                            <div class="chalice-label">Chalice 2</div>
+                        </div>
+                        <div class="chalice" data-chalice="2" data-player="${player.id}">
+                            <div class="chalice-icon">🍷</div>
+                            <div class="chalice-label">Chalice 3</div>
+                        </div>
+                    </div>
+
+                    <div class="action-panel">
+                        <h3>⚗️ Poison a Chalice</h3>
+                        <p>Click a chalice to poison it. Your choice is locked!</p>
+                        <p class="selection-info" id="selection-${player.id}">Click a chalice to poison it</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createChalicesTesterUI(player) {
+            return `
+                <div class="chalices-game" data-player-id="${player.id}">
+                    <h2>Chalices Game</h2>
+                    <p>You must DRINK from a chalice</p>
+
+                    <div class="chalices-container">
+                        <div class="chalice" data-chalice="0" data-player="${player.id}">
+                            <div class="chalice-icon">🍷</div>
+                            <div class="chalice-label">Chalice 1</div>
+                        </div>
+                        <div class="chalice" data-chalice="1" data-player="${player.id}">
+                            <div class="chalice-icon">🍷</div>
+                            <div class="chalice-label">Chalice 2</div>
+                        </div>
+                        <div class="chalice" data-chalice="2" data-player="${player.id}">
+                            <div class="chalice-icon">🍷</div>
+                            <div class="chalice-label">Chalice 3</div>
+                        </div>
+                    </div>
+
+                    <div class="action-panel">
+                        <h3>🎯 Choose Your Chalice</h3>
+                        <p>Click a chalice to drink from it. Choose wisely!</p>
+                        <p class="selection-info" id="selection-${player.id}">Click a chalice to drink</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupChalicesHandlers(player, action) {
+            const chalices = document.querySelectorAll(`[data-player="${player.id}"].chalice`);
+            let locked = false;
+
+            chalices.forEach(chalice => {
+                chalice.addEventListener('click', () => {
+                    if (locked) return;
+
+                    locked = true;
+                    const chaliceNum = parseInt(chalice.getAttribute('data-chalice'));
+
+                    chalices.forEach(c => {
+                        c.classList.remove('selected', 'poisoned');
+                        c.style.opacity = '0.5';
+                        c.style.cursor = 'default';
+                    });
+
+                    chalice.style.opacity = '1';
+                    if (action === 'poison') {
+                        chalice.classList.add('poisoned');
+                        player.choice = { type: 'poison', chalice: chaliceNum };
+                    } else {
+                        chalice.classList.add('selected');
+                        player.choice = { type: 'drink', chalice: chaliceNum };
+                    }
+
+                    const selection = document.getElementById(`selection-${player.id}`);
+                    if (selection) {
+                        selection.textContent = action === 'poison'
+                            ? `🔒 Poisoned Chalice ${chaliceNum + 1}`
+                            : `🔒 Drinking from Chalice ${chaliceNum + 1}`;
+                    }
+
+                    log(`Player ${player.name} chose to ${action} Chalice ${chaliceNum + 1}`, 'success');
+                });
+            });
+        }
+
+        // ========== WORST ANSWER ==========
+        function startWorstAnswerTest() {
+            currentGame = 'worst_answer';
+
+            const question = "What's the worst song to play at a wedding?";
+            const atRiskPlayers = players.filter(p => p.role === 'at_risk');
+
+            players.forEach(player => {
+                const content = document.getElementById(`content-${player.id}`);
+
+                if (player.role === 'at_risk') {
+                    content.innerHTML = createWorstAnswerSubmitUI(player, question);
+                    setupWorstAnswerSubmitHandlers(player);
+                } else {
+                    content.innerHTML = `
+                        <div class="worst-answer-game">
+                            <h2>Worst Answer</h2>
+                            <div class="game-rules-box">
+                                <h3>${question}</h3>
+                            </div>
+                            <div class="observer-panel">
+                                <h3>Waiting for Answers</h3>
+                                <p>At-risk players are submitting their answers...</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            startGameTimer(30);
+        }
+
+        function createWorstAnswerSubmitUI(player, question) {
+            return `
+                <div class="worst-answer-game" data-player-id="${player.id}">
+                    <h2>Worst Answer</h2>
+                    <div class="game-rules-box">
+                        <h3>${question}</h3>
+                    </div>
+
+                    <div class="action-panel">
+                        <h3>✍️ Submit Your Answer</h3>
+                        <p>Submit what you think is the WORST answer:</p>
+                        <input type="text" id="answer-${player.id}" class="math-answer-input"
+                               style="width: 100%; margin-bottom: 10px;" maxlength="30" placeholder="Type your answer...">
+                        <button id="submit-answer-${player.id}" class="submit-answer-btn">
+                            Submit Answer
+                        </button>
+                        <div class="feedback" id="answer-feedback-${player.id}"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupWorstAnswerSubmitHandlers(player) {
+            const input = document.getElementById(`answer-${player.id}`);
+            const submitBtn = document.getElementById(`submit-answer-${player.id}`);
+
+            submitBtn.addEventListener('click', () => {
+                const answer = input.value.trim();
+                if (!answer) return;
+
+                player.answer = answer;
+                input.disabled = true;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitted ✓';
+
+                const feedback = document.getElementById(`answer-feedback-${player.id}`);
+                if (feedback) {
+                    feedback.textContent = `✓ Answer submitted: "${answer}"`;
+                    feedback.className = 'feedback correct';
+                }
+
+                log(`Player ${player.name} submitted: "${answer}"`, 'success');
+            });
+        }
+
+        // ========== GRAB MORE POINTS ==========
+        function startGrabMorePointsTest() {
+            currentGame = 'grab_more_points';
+
+            const atRiskPlayers = players.filter(p => p.role === 'at_risk');
+
+            players.forEach(player => {
+                const content = document.getElementById(`content-${player.id}`);
+
+                if (player.role === 'at_risk') {
+                    content.innerHTML = createGrabMorePointsUI(player);
+                    setupGrabMorePointsHandlers(player);
+                } else {
+                    content.innerHTML = `
+                        <div class="grab-more-points-game">
+                            <h2>Grab More Points</h2>
+                            <div class="observer-panel">
+                                <h3>Observing</h3>
+                                <p>Watching at-risk players make their decisions...</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            startGameTimer(30);
+        }
+
+        function createGrabMorePointsUI(player) {
+            return `
+                <div class="grab-more-points-game" data-player-id="${player.id}">
+                    <h2>Grab More Points</h2>
+
+                    <div class="game-rules-box">
+                        <h3>The Rules</h3>
+                        <ul class="rules-list">
+                            <li>Enter 0-1000 points to grab</li>
+                            <li>If ANYONE grabs points, greediest player is eliminated</li>
+                            <li>If NO ONE grabs points, everyone survives!</li>
+                        </ul>
+                    </div>
+
+                    <div class="action-panel">
+                        <h3>Your Decision</h3>
+                        <p>How many points do you want to grab?</p>
+                        <input type="number" id="points-${player.id}" class="math-answer-input"
+                               style="width: 150px;" min="0" max="1000" value="0" placeholder="0">
+                        <span> / 1000</span>
+                        <br><br>
+                        <button id="submit-points-${player.id}" class="submit-answer-btn">
+                            Submit Decision
+                        </button>
+                        <div class="feedback" id="points-feedback-${player.id}"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupGrabMorePointsHandlers(player) {
+            const input = document.getElementById(`points-${player.id}`);
+            const submitBtn = document.getElementById(`submit-points-${player.id}`);
+
+            submitBtn.addEventListener('click', () => {
+                const points = parseInt(input.value) || 0;
+                player.points = Math.max(0, Math.min(1000, points));
+
+                input.disabled = true;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitted ✓';
+
+                const feedback = document.getElementById(`points-feedback-${player.id}`);
+                if (feedback) {
+                    feedback.textContent = player.points > 0
+                        ? `✓ Grabbing ${player.points} points`
+                        : '✓ Taking no points (noble!)';
+                    feedback.className = 'feedback correct';
+                }
+
+                log(`Player ${player.name} chose to grab ${player.points} points`, player.points > 0 ? 'warning' : 'success');
+            });
+        }
+
+        // ========== PLAYING AT DISADVANTAGE ==========
+        function startDisadvantageTest() {
+            currentGame = 'disadvantage';
+
+            const atRiskPlayers = players.filter(p => p.role === 'at_risk');
+
+            players.forEach(player => {
+                const content = document.getElementById(`content-${player.id}`);
+
+                if (player.role === 'at_risk') {
+                    content.innerHTML = createDisadvantageUI(player);
+                    setupDisadvantageHandlers(player);
+                } else {
+                    content.innerHTML = `
+                        <div class="disadvantage-game">
+                            <h2>Playing at Disadvantage</h2>
+                            <div class="observer-panel">
+                                <h3>Observing</h3>
+                                <p>Watching at-risk players choose their disadvantage...</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            startGameTimer(30);
+        }
+
+        function createDisadvantageUI(player) {
+            return `
+                <div class="disadvantage-game" data-player-id="${player.id}">
+                    <h2>Playing at Disadvantage</h2>
+
+                    <div class="game-rules-box">
+                        <h3>The Rules</h3>
+                        <ul class="rules-list">
+                            <li>Choose ONE answer position that will be disabled</li>
+                            <li>You won't be able to select that position for the rest of the game</li>
+                            <li>Choose wisely - this affects all future questions!</li>
+                        </ul>
+                    </div>
+
+                    <div class="action-panel">
+                        <h3>Choose Your Disabled Position</h3>
+                        <div class="position-buttons">
+                            <button class="position-btn" data-position="1" data-player="${player.id}">
+                                <span class="position-number">1</span>
+                                <span class="position-label">Position 1</span>
+                            </button>
+                            <button class="position-btn" data-position="2" data-player="${player.id}">
+                                <span class="position-number">2</span>
+                                <span class="position-label">Position 2</span>
+                            </button>
+                            <button class="position-btn" data-position="3" data-player="${player.id}">
+                                <span class="position-number">3</span>
+                                <span class="position-label">Position 3</span>
+                            </button>
+                            <button class="position-btn" data-position="4" data-player="${player.id}">
+                                <span class="position-number">4</span>
+                                <span class="position-label">Position 4</span>
+                            </button>
+                        </div>
+                        <div class="feedback" id="disadvantage-feedback-${player.id}"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupDisadvantageHandlers(player) {
+            const buttons = document.querySelectorAll(`[data-player="${player.id}"].position-btn`);
+
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const position = parseInt(btn.getAttribute('data-position'));
+                    player.disabledPosition = position;
+
+                    buttons.forEach(b => {
+                        b.classList.remove('selected');
+                        b.disabled = true;
+                        b.style.opacity = '0.5';
+                    });
+
+                    btn.classList.add('selected');
+                    btn.style.opacity = '1';
+
+                    const feedback = document.getElementById(`disadvantage-feedback-${player.id}`);
+                    if (feedback) {
+                        feedback.textContent = `✓ Position ${position} will be disabled`;
+                        feedback.className = 'feedback correct';
+                    }
+
+                    log(`Player ${player.name} chose to disable Position ${position}`, 'success');
+                });
+            });
+        }
+
+        // ========== GAME TIMER ==========
+        function startGameTimer(seconds) {
+            let remaining = seconds;
+
+            gameTimerInterval = setInterval(() => {
+                remaining--;
+
+                if (remaining <= 0) {
+                    clearInterval(gameTimerInterval);
+                    gameTimerInterval = null;
+                    log('Time is up! Resolving game...', 'warning');
+                    resolveGame();
+                }
+            }, 1000);
+
+            log(`Game timer started: ${seconds} seconds`, 'info');
+        }
+
+        // ========== RESOLVE GAME ==========
+        function resolveGame() {
+            log('Game resolved. Check player scores/choices above.', 'success');
+
+            // Show results based on game type
+            players.forEach(player => {
+                const content = document.getElementById(`content-${player.id}`);
+                if (content) {
+                    let resultHtml = '<div class="game-rules-box"><h3>Results</h3>';
+
+                    switch (currentGame) {
+                        case 'quick_math':
+                            resultHtml += `<p>Your score: ${player.score || 0} points</p>`;
+                            break;
+                        case 'pattern_tiles':
+                            resultHtml += `<p>Your accuracy: ${(player.score || 0).toFixed(1)}%</p>`;
+                            break;
+                        case 'chalices':
+                            if (player.choice) {
+                                resultHtml += `<p>You chose to ${player.choice.type} Chalice ${player.choice.chalice + 1}</p>`;
+                            }
+                            break;
+                        case 'worst_answer':
+                            if (player.answer) {
+                                resultHtml += `<p>Your answer: "${player.answer}"</p>`;
+                            }
+                            break;
+                        case 'grab_more_points':
+                            resultHtml += `<p>You grabbed: ${player.points || 0} points</p>`;
+                            break;
+                        case 'disadvantage':
+                            if (player.disabledPosition) {
+                                resultHtml += `<p>Position ${player.disabledPosition} disabled</p>`;
+                            }
+                            break;
+                    }
+
+                    resultHtml += '</div>';
+                    content.innerHTML += resultHtml;
+                }
+            });
+        }
+
+        // Initialize
+        log('Mini-Games Tester initialized', 'success');
+    </script>
+</body>
+</html>

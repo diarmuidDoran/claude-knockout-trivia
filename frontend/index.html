@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Knockout Trivia</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* Landing page specific styles */
+        .landing-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .landing-container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .landing-header {
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .landing-logo {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .landing-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .landing-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+            margin-top: 0.5rem;
+        }
+
+        .landing-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .option-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .option-card:active {
+            transform: translateY(-2px);
+        }
+
+        .option-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .option-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .option-description {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .tv-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .mobile-card {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+        }
+
+        /* Responsive design */
+        @media (min-width: 768px) {
+            .landing-options {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .landing-title {
+                font-size: 3.5rem;
+            }
+        }
+
+        /* Footer info */
+        .landing-footer {
+            margin-top: 3rem;
+            color: white;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .landing-footer a {
+            color: white;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-screen">
+        <div class="landing-container">
+            <!-- Header -->
+            <div class="landing-header">
+                <div class="landing-logo">🎯</div>
+                <h1 class="landing-title">Knockout Trivia</h1>
+                <p class="landing-subtitle">Battle for survival in this fast-paced elimination trivia game!</p>
+            </div>
+
+            <!-- Options -->
+            <div class="landing-options">
+                <!-- TV Display Option -->
+                <a href="tv.html" class="option-card tv-card">
+                    <span class="option-icon">📺</span>
+                    <h2 class="option-title">TV Display</h2>
+                    <p class="option-description">Host a game on the big screen</p>
+                </a>
+
+                <!-- Mobile Player Option -->
+                <a href="mobile.html" class="option-card mobile-card">
+                    <span class="option-icon">📱</span>
+                    <h2 class="option-title">Join Game</h2>
+                    <p class="option-description">Play on your phone or tablet</p>
+                </a>
+            </div>
+
+            <!-- Footer Info -->
+            <div class="landing-footer">
+                <p>Answer correctly to stay alive. Wrong answers lead to elimination mini-games!</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

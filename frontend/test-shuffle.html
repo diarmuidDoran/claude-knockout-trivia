@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Answer Shuffle Test</title>
+</head>
+<body>
+    <h1>Answer Shuffling Test</h1>
+    <div id="test-results"></div>
+
+    <script>
+        // Test the shuffle function
+        function shuffleArray(array) {
+            const shuffled = [...array]; // Create a copy to avoid mutating original
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Test data similar to what we get from the backend
+        const testQuestion = {
+            options: [
+                { id: 1, text: "Option A (Correct)", is_correct: true },
+                { id: 2, text: "Option B", is_correct: false },
+                { id: 3, text: "Option C", is_correct: false },
+                { id: 4, text: "Option D", is_correct: false }
+            ]
+        };
+
+        // Run multiple shuffle tests
+        const resultsDiv = document.getElementById('test-results');
+        resultsDiv.innerHTML = '<h2>Shuffle Test Results (10 iterations):</h2>';
+
+        for (let i = 0; i < 10; i++) {
+            const shuffled = shuffleArray(testQuestion.options);
+            const correctAnswerPosition = shuffled.findIndex(opt => opt.is_correct);
+            
+            resultsDiv.innerHTML += `<p>Test ${i+1}: Correct answer at position ${correctAnswerPosition + 1} - ${shuffled.map(opt => opt.text).join(', ')}</p>`;
+        }
+
+        // Check if positions are varying
+        const positions = [];
+        for (let i = 0; i < 100; i++) {
+            const shuffled = shuffleArray(testQuestion.options);
+            const correctAnswerPosition = shuffled.findIndex(opt => opt.is_correct);
+            positions.push(correctAnswerPosition);
+        }
+
+        const positionCounts = positions.reduce((acc, pos) => {
+            acc[pos] = (acc[pos] || 0) + 1;
+            return acc;
+        }, {});
+
+        resultsDiv.innerHTML += '<h2>Position Distribution (100 tests):</h2>';
+        resultsDiv.innerHTML += `<p>Position 1: ${positionCounts[0] || 0} times</p>`;
+        resultsDiv.innerHTML += `<p>Position 2: ${positionCounts[1] || 0} times</p>`;
+        resultsDiv.innerHTML += `<p>Position 3: ${positionCounts[2] || 0} times</p>`;
+        resultsDiv.innerHTML += `<p>Position 4: ${positionCounts[3] || 0} times</p>`;
+        
+        // Test should show roughly equal distribution
+        const isWellDistributed = Object.values(positionCounts).every(count => count > 15 && count < 35);
+        resultsDiv.innerHTML += `<p><strong>Shuffle Quality: ${isWellDistributed ? '✅ GOOD - Well distributed' : '❌ POOR - Not well distributed'}</strong></p>`;
+    </script>
+</body>
+</html>

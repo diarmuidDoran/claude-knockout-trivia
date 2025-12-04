@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Knockout Trivia - Debug</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="screen">
+        <div class="container">
+            <div class="logo">🎯</div>
+            <h1>Loading...</h1>
+            <p id="loading-message">Connecting to server...</p>
+        </div>
+    </div>
+
+    <!-- Home Screen -->
+    <div id="home-screen" class="screen" style="display: none;">
+        <div class="container">
+            <div class="header">
+                <div class="logo">🎯</div>
+                <h1>Knockout Trivia</h1>
+                <p>Host a game or join one!</p>
+            </div>
+
+            <!-- Host Game Section -->
+            <div class="host-section">
+                <h3>Host a Game</h3>
+                <button class="btn btn-primary" id="host-game-btn">
+                    🎮 Start New Game Room
+                </button>
+            </div>
+
+            <div class="divider">
+                <span>OR</span>
+            </div>
+
+            <!-- Join Game Section -->
+            <div class="join-section">
+                <h3>Join a Game</h3>
+                <button class="btn btn-secondary" id="join-game-btn">
+                    🎲 Join Game Room
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debug section -->
+    <div style="position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; font-size: 12px; z-index: 9999;">
+        <div>Debug Info:</div>
+        <div id="debug-info"></div>
+    </div>
+
+    <script>
+        // Simple debug script
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded');
+            
+            const debugInfo = document.getElementById('debug-info');
+            const hostBtn = document.getElementById('host-game-btn');
+            const joinBtn = document.getElementById('join-game-btn');
+            
+            debugInfo.innerHTML = `
+                Host btn found: ${!!hostBtn}<br>
+                Join btn found: ${!!joinBtn}<br>
+                Loading screen: ${!!document.getElementById('loading-screen')}<br>
+                Home screen: ${!!document.getElementById('home-screen')}
+            `;
+
+            // Show home screen immediately for testing
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('home-screen').style.display = 'block';
+            
+            if (hostBtn) {
+                hostBtn.addEventListener('click', () => {
+                    console.log('Host button clicked!');
+                    alert('Host button works!');
+                });
+                console.log('Host button event listener added');
+            } else {
+                console.error('Host button not found!');
+            }
+            
+            if (joinBtn) {
+                joinBtn.addEventListener('click', () => {
+                    console.log('Join button clicked!');
+                    alert('Join button works!');
+                });
+                console.log('Join button event listener added');
+            } else {
+                console.error('Join button not found!');
+            }
+        });
+    </script>
+</body>
+</html>

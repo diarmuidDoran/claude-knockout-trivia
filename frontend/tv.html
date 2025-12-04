@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knockout Trivia - TV Display</title>
+    <link rel="stylesheet" href="css/tv-styles.css">
+    <link rel="stylesheet" href="css/haunting-race.css">
+</head>
+<body>
+    <!-- TV Home Screen -->
+    <div id="tv-home-screen" class="screen">
+        <div class="tv-container">
+            <div class="header">
+                <div class="logo">🎯</div>
+                <h1>Knockout Trivia</h1>
+                <p>Challenge your knowledge!</p>
+            </div>
+
+            <div class="content-grid">
+                <!-- Start New Game Section -->
+                <div class="start-game-section">
+                    <button class="btn btn-primary tv-btn" id="start-new-game-btn">
+                        🎮 Start New Game Room
+                    </button>
+                    <p class="subtitle">Create a room for 1-10 players</p>
+                </div>
+
+                <!-- Leaderboard Section -->
+                <div class="leaderboard-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h2 style="margin: 0;">🏆 Top Players</h2>
+                        <button id="reset-leaderboard-btn" class="btn btn-danger" style="padding: 8px 15px; font-size: 0.9em;">
+                            🗑️ Reset
+                        </button>
+                    </div>
+                    <div id="leaderboard-container">
+                        <div class="loading-leaderboard">Loading leaderboard...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TV Waiting Room Screen -->
+    <div id="tv-waiting-screen" class="screen hidden">
+        <div class="tv-container">
+            <div class="header">
+                <div class="logo">🎯</div>
+                <h1>Waiting Room</h1>
+            </div>
+
+            <div class="waiting-content">
+                <!-- Room Code Display -->
+                <div class="room-code-display">
+                    <h2>Room Code</h2>
+                    <div class="room-code" id="tv-room-code">----</div>
+                    <p class="join-instructions">
+                        Players: Go to <strong>knockout.game</strong> on your phone<br>
+                        Enter the room code and your name to join!
+                    </p>
+                </div>
+
+                <!-- Players List -->
+                <div class="players-section">
+                    <h3>Players in Room (<span id="player-count">0</span>/10)</h3>
+                    <div id="tv-players-list" class="players-grid">
+                        <!-- Players will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Game Status -->
+                <div class="game-status">
+                    <div id="waiting-message" class="status-message">
+                        Waiting for players to join...
+                    </div>
+
+                    <!-- Exit Room Button -->
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button id="exit-room-btn" class="btn btn-secondary" style="min-width: 200px;">
+                            🚪 Exit Room
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TV Game Screen -->
+    <div id="tv-game-screen" class="screen hidden">
+        <div class="tv-container">
+            <div class="header">
+                <div class="logo">🎯</div>
+                <h1>Question <span id="question-number">1</span></h1>
+                <div class="category-badge" id="tv-question-category">General</div>
+            </div>
+
+            <div class="game-content">
+                <!-- Player Avatars -->
+                <div class="player-avatars-section" id="player-avatars">
+                    <!-- Unicorn avatars will be populated here -->
+                </div>
+
+                <!-- Current Question -->
+                <div class="question-display">
+                    <h2 id="tv-question-text">Loading question...</h2>
+                </div>
+
+                <!-- Answer Options -->
+                <div class="tv-answers-grid" id="tv-answers-grid">
+                    <!-- Answer options will be populated here -->
+                </div>
+
+                <!-- Timer -->
+                <div class="timer-section">
+                    <div class="timer-circle">
+                        <span id="tv-timer">30</span>
+                    </div>
+                </div>
+
+                <!-- Question Results Overlay -->
+                <div id="tv-results-overlay" class="tv-results-overlay hidden">
+                    <!-- Results will be populated dynamically -->
+                </div>
+
+                <!-- Emergency Terminate Button -->
+                <div style="position: fixed; bottom: 20px; right: 20px;">
+                    <button id="emergency-terminate-btn" class="btn btn-danger" style="padding: 10px 20px; font-size: 0.9em; opacity: 0.7;">
+                        ⚠️ Terminate Room
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TV Game Over Screen -->
+    <div id="tv-game-over-screen" class="screen hidden">
+        <div class="tv-container">
+            <div class="header">
+                <div class="logo">🎯</div>
+                <h1>Game Over!</h1>
+            </div>
+
+            <div class="game-over-content">
+                <!-- Winner and Leaderboard Side by Side -->
+                <div class="game-over-main">
+                    <!-- Winner Display -->
+                    <div class="winner-section">
+                        <h2>🏆 Winner 🏆</h2>
+                        <div id="winner-display" class="winner-card">
+                            <div class="winner-avatar">🦄</div>
+                            <div class="winner-name">Player Name</div>
+                            <div class="winner-score">1000 points</div>
+                        </div>
+                    </div>
+
+                    <!-- Final Leaderboard -->
+                    <div class="final-leaderboard-section">
+                        <h3>Final Standings</h3>
+                        <div id="final-leaderboard" class="final-standings">
+                            <!-- Leaderboard populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game Options (VIP only sees buttons) -->
+                <div class="game-options">
+                    <button id="rematch-btn" class="btn btn-primary hidden">
+                        🔄 Rematch
+                    </button>
+                    <button id="finish-game-btn" class="btn btn-secondary hidden">
+                        🏠 Finish Game
+                    </button>
+                </div>
+
+                <!-- Terminate Room Button -->
+                <div style="position: fixed; bottom: 20px; right: 20px;">
+                    <button id="game-over-terminate-btn" class="btn btn-danger" style="padding: 10px 20px; font-size: 0.9em; opacity: 0.7;">
+                        ⚠️ Terminate Room
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Haunting Race Screen -->
+    <div id="haunting-race-screen" class="haunting-race-screen hidden">
+        <div class="haunting-race-header">
+            <h1 class="haunting-race-title">🏁 Haunting Race</h1>
+            <p class="haunting-race-subtitle">Unicorn must reach the finish line!</p>
+        </div>
+
+        <div class="race-track-container">
+            <div class="race-track tv-race-track">
+                <!-- Race track columns populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="haunting-race-question-section tv-question-display">
+            <div class="question-header">
+                <span class="question-number">Question 1</span>
+                <span class="question-timer">20s</span>
+            </div>
+            <div class="question-topic">Current Question Topic</div>
+            <div class="race-instructions-tv" style="max-width: 800px; margin: 15px auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 15px 20px; border-radius: 12px; text-align: center;">
+                <p style="margin: 0; font-size: 1.1em; color: white; font-weight: 500;">
+                    📝 Players select all TRUE statements. 🦄 Unicorn sees 2 statements, 👻 Ghosts see 3 statements.
+                </p>
+            </div>
+            <div class="statements-container" style="max-width: 800px; margin: 20px auto;">
+                <!-- Statements will be populated by JavaScript -->
+            </div>
+            <div class="tv-race-status">
+                <p>Players are answering on their devices...</p>
+            </div>
+        </div>
+
+        <div class="haunting-race-results" style="display: none;">
+            <!-- Results populated by JavaScript -->
+        </div>
+
+        <!-- Terminate Room Button -->
+        <div style="position: fixed; bottom: 20px; right: 20px;">
+            <button id="haunting-race-terminate-btn" class="btn btn-danger" style="padding: 10px 20px; font-size: 0.9em; opacity: 0.7;">
+                ⚠️ Terminate Room
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/websocket.js"></script>
+    <script src="js/haunting-race.js"></script>
+    <script src="js/tv-app.js"></script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Mobile - Knockout Trivia</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        input, button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Knockout Trivia</h1>
+    <h2>Join Game</h2>
+
+    <input type="text" id="room-code" placeholder="Room Code (4 letters)" maxlength="4" style="text-transform: uppercase;">
+    <input type="text" id="player-name" placeholder="Your Name (letters only)" maxlength="15" pattern="[A-Za-z]+" title="Please use letters only" style="text-transform: uppercase;">
+    <button id="join-btn">Join Game</button>
+
+    <div id="status">Ready to join...</div>
+
+    <script>
+        console.log('Test page loaded');
+
+        // Auto-uppercase room code
+        document.getElementById('room-code').addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+
+        // Auto-uppercase player name and allow letters only
+        document.getElementById('player-name').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase();
+        });
+
+        // Join button handler
+        document.getElementById('join-btn').addEventListener('click', async () => {
+            const roomCode = document.getElementById('room-code').value.trim();
+            const playerName = document.getElementById('player-name').value.trim();
+            const status = document.getElementById('status');
+
+            console.log('Join button clicked', { roomCode, playerName });
+            status.textContent = 'Joining...';
+
+            if (!roomCode || !playerName) {
+                status.textContent = 'Error: Please fill in both fields';
+                return;
+            }
+
+            if (roomCode.length !== 4) {
+                status.textContent = 'Error: Room code must be 4 letters';
+                return;
+            }
+
+            try {
+                // Detect backend URL
+                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const backendHost = isLocalhost ? 'localhost' : window.location.hostname;
+                const apiUrl = `http://${backendHost}:8001/api/rooms/join`;
+
+                console.log('Sending request to:', apiUrl);
+                status.textContent = `Connecting to ${apiUrl}...`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        player_name: playerName,
+                        room_code: roomCode
+                    })
+                });
+
+                console.log('Response status:', response.status);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Success!', data);
+                    status.textContent = `✅ Joined room ${roomCode} as ${playerName}!\nPlayer ID: ${data.player_id}\nIs VIP: ${data.is_vip}`;
+                    status.style.background = '#d4edda';
+                } else {
+                    const error = await response.json();
+                    console.error('Error:', error);
+                    status.textContent = `❌ Error: ${error.detail || 'Failed to join'}`;
+                    status.style.background = '#f8d7da';
+                }
+            } catch (error) {
+                console.error('Request failed:', error);
+                status.textContent = `❌ Network Error: ${error.message}`;
+                status.style.background = '#f8d7da';
+            }
+        });
+    </script>
+</body>
+</html>
