@@ -35,6 +35,7 @@ class PlayerResponse(BaseModel):
     total_score: int
     is_connected: bool
     is_vip: bool
+    is_ghost: bool
 
 def generate_room_code() -> str:
     """Generate a 4-character room code like 'RGHB'"""
@@ -234,7 +235,8 @@ async def get_room_players(room_code: str, db: Session = Depends(get_db)):
             name=player.name,
             total_score=player.total_score,
             is_connected=player.is_connected,
-            is_vip=player.is_vip
+            is_vip=player.is_vip,
+            is_ghost=player.is_ghost
         )
         for player in players
     ]

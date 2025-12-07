@@ -163,10 +163,13 @@ class HauntingRaceManager {
         const ghostIds = this.raceData.ghost_ids;
         const players = this.raceData.players;
 
+        console.log('[HAUNTING-RACE-UPDATE] Updating player positions - Unicorn:', unicornId, 'Ghosts:', ghostIds);
+
         // Add unicorn FIRST
         if (this.positions[unicornId]) {
-            this.addPlayerToTrack(unicornId, this.positions[unicornId], 'unicorn',
-                players.find(p => p.id == unicornId), animate);
+            const unicornPlayer = players.find(p => p.id == unicornId);
+            console.log('[HAUNTING-RACE-UPDATE] Adding UNICORN:', unicornPlayer?.name, 'at position', this.positions[unicornId]);
+            this.addPlayerToTrack(unicornId, this.positions[unicornId], 'unicorn', unicornPlayer, animate);
         }
 
         // Wait before showing ghosts move (so players see unicorn moves first)
@@ -177,8 +180,9 @@ class HauntingRaceManager {
         // Add ALL ghosts at the same time (after unicorn)
         ghostIds.forEach(ghostId => {
             if (this.positions[ghostId]) {
-                this.addPlayerToTrack(ghostId, this.positions[ghostId], 'ghost',
-                    players.find(p => p.id == ghostId), animate);
+                const ghostPlayer = players.find(p => p.id == ghostId);
+                console.log('[HAUNTING-RACE-UPDATE] Adding GHOST:', ghostPlayer?.name, 'at position', this.positions[ghostId]);
+                this.addPlayerToTrack(ghostId, this.positions[ghostId], 'ghost', ghostPlayer, animate);
             }
         });
     }
@@ -561,9 +565,13 @@ class HauntingRaceManager {
 
     // Handle unicorn swap
     handleUnicornSwap(data) {
-        console.log('Unicorn swap:', data);
+        console.log('[HAUNTING-RACE-SWAP] Unicorn swap event received:', data);
 
         const swapData = data.data;
+
+        console.log('[HAUNTING-RACE-SWAP] Old unicorn:', swapData.old_unicorn_id);
+        console.log('[HAUNTING-RACE-SWAP] New unicorn:', swapData.new_unicorn_id);
+        console.log('[HAUNTING-RACE-SWAP] New ghost IDs:', swapData.ghost_ids);
 
         // Update positions first
         this.positions = swapData.new_positions;
@@ -575,10 +583,13 @@ class HauntingRaceManager {
         // Check if we are the new unicorn
         this.isUnicorn = (swapData.new_unicorn_id == this.playerId);
 
+        console.log('[HAUNTING-RACE-SWAP] Updated local state - Unicorn ID:', this.raceData.unicorn_id, 'Ghost IDs:', this.raceData.ghost_ids);
+
         // Update UI to reflect new role
         this.updateRoleDisplay();
 
         // Update player positions immediately (before animation)
+        console.log('[HAUNTING-RACE-SWAP] Updating player positions on track...');
         this.updatePlayerPositions(false);
 
         // Show swap animation
