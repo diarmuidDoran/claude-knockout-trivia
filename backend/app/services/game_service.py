@@ -721,7 +721,7 @@ class GameService:
 
         Conditions:
         - Exactly 1 living player (is_ghost == False)
-        - 2 or more ghost players (is_ghost == True)
+        - At least 1 ghost player (is_ghost == True)
 
         Returns:
             True if haunting race should start, False otherwise
@@ -731,6 +731,9 @@ class GameService:
             room = db.query(Room).filter(Room.code == room_code).first()
             if not room:
                 return False
+
+            # Refresh database session to ensure we have latest data
+            db.expire_all()
 
             # Count living players
             living_players = db.query(Player).filter(
@@ -746,12 +749,27 @@ class GameService:
                 Player.is_connected == True
             ).all()
 
+            # Also query ALL players for debugging
+            all_players = db.query(Player).filter(Player.room_id == room.id).all()
+
             living_count = len(living_players)
             ghost_count = len(ghost_players)
 
             should_trigger = living_count == 1 and ghost_count >= 1
 
-            print(f"[HAUNTING-RACE] Check trigger - Living: {living_count}, Ghosts: {ghost_count}, Trigger: {should_trigger}")
+            print(f"[HAUNTING-RACE] ===== TRIGGER CHECK =====")
+            print(f"[HAUNTING-RACE] Room: {room_code}")
+            print(f"[HAUNTING-RACE] Living players: {living_count}")
+            for p in living_players:
+                print(f"[HAUNTING-RACE]   - {p.name} (ID: {p.id}, Connected: {p.is_connected}, Ghost: {p.is_ghost})")
+            print(f"[HAUNTING-RACE] Ghost players: {ghost_count}")
+            for p in ghost_players:
+                print(f"[HAUNTING-RACE]   - {p.name} (ID: {p.id}, Connected: {p.is_connected}, Ghost: {p.is_ghost})")
+            print(f"[HAUNTING-RACE] ALL players (including disconnected):")
+            for p in all_players:
+                print(f"[HAUNTING-RACE]   - {p.name} (ID: {p.id}, Connected: {p.is_connected}, Ghost: {p.is_ghost})")
+            print(f"[HAUNTING-RACE] Trigger: {should_trigger}")
+            print(f"[HAUNTING-RACE] ===========================")
 
             return should_trigger
         finally:
@@ -759,7 +777,8 @@ class GameService:
 
     async def start_haunting_race(self, room_code: str):
         """Start the haunting race endgame."""
-        print(f"[HAUNTING-RACE] Starting haunting race for room {room_code}")
+        print(f"[HAUNTING-RACE] ===== STARTING HAUNTING RACE =====")
+        print(f"[HAUNTING-RACE] Room: {room_code}")
 
         # Mark as active to prevent duplicate starts
         self.active_haunting_races[room_code] = True
@@ -775,11 +794,18 @@ class GameService:
             room.is_haunting_race_active = True
             db.commit()
 
+            # Refresh database session to ensure we have latest data
+            db.expire_all()
+
             # Get all players with their data
             players = db.query(Player).filter(
                 Player.room_id == room.id,
                 Player.is_connected == True
             ).all()
+
+            print(f"[HAUNTING-RACE] Found {len(players)} connected players:")
+            for p in players:
+                print(f"[HAUNTING-RACE]   - {p.name} (ID: {p.id}, Ghost: {p.is_ghost}, Score: {p.total_score})")
 
             # Convert to dict format for service
             player_data = [
@@ -794,6 +820,11 @@ class GameService:
 
             # Setup the race
             race_setup = self.haunting_race_service.setup_race(room_code, player_data)
+
+            print(f"[HAUNTING-RACE] Race setup complete:")
+            print(f"[HAUNTING-RACE]   Unicorn: {race_setup['unicorn_player']['name']} (ID: {race_setup['unicorn_player']['id']})")
+            print(f"[HAUNTING-RACE]   Ghosts: {[g['name'] for g in race_setup['ghost_players']]}")
+            print(f"[HAUNTING-RACE]   Broadcasting to room...")
 
             # Broadcast race start to all players
             await self.connection_manager.broadcast_haunting_race_start(

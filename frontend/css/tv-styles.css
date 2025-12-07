@@ -82,7 +82,7 @@ body {
 
 .header p {
     font-size: clamp(1rem, 1.5vw, 1.5rem);
-    opacity: 0.9;
+    color: white;
     margin-top: clamp(0.5rem, 1vh, 1rem);
 }
 
@@ -140,7 +140,6 @@ body {
     color: white;
     font-size: clamp(1rem, 1.2vw, 1.2rem);
     margin-top: clamp(0.8rem, 1.5vh, 1.5rem);
-    opacity: 0.8;
 }
 
 /* Leaderboard Section */
@@ -201,17 +200,18 @@ body {
     color: white;
     font-size: clamp(1rem, 1.2vw, 1.3rem);
     text-align: center;
-    opacity: 0.7;
 }
 
 /* Waiting Room Styles */
 .waiting-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: clamp(2rem, 3vw, 4rem);
+    grid-template-rows: auto auto;
+    gap: clamp(1.5rem, 2vw, 2.5rem);
     align-items: start;
     flex: 1;
     overflow: hidden;
+    max-height: calc(100vh - 200px);
 }
 
 .room-code-display {
@@ -224,12 +224,14 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    max-height: 45vh;
+    overflow: hidden;
 }
 
 .room-code-display h2 {
     color: white;
-    font-size: clamp(1.5rem, 2vw, 2.5rem);
-    margin-bottom: clamp(1rem, 2vh, 2rem);
+    font-size: clamp(1.3rem, 1.8vw, 2rem);
+    margin-bottom: clamp(0.8rem, 1.5vh, 1.5rem);
 }
 
 .room-code {
@@ -247,9 +249,9 @@ body {
 
 .join-instructions {
     color: white;
-    font-size: clamp(1rem, 1.2vw, 1.3rem);
-    line-height: 1.6;
-    margin-top: clamp(1rem, 2vh, 2rem);
+    font-size: clamp(0.95rem, 1.1vw, 1.2rem);
+    line-height: 1.5;
+    margin-top: clamp(0.8rem, 1.5vh, 1.5rem);
 }
 
 .join-instructions strong {
@@ -267,6 +269,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    max-height: 45vh;
 }
 
 .players-section h3 {
@@ -281,9 +284,10 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: clamp(0.8rem, 1.2vw, 1.5rem);
-    max-height: 35vh;
+    flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    min-height: 0;
 }
 
 /* Custom scrollbar for players grid */
@@ -331,7 +335,7 @@ body {
 
 .player-status {
     font-size: clamp(0.85rem, 1vw, 1rem);
-    opacity: 0.8;
+    color: white;
 }
 
 .vip-badge {
@@ -348,7 +352,8 @@ body {
 .game-status {
     grid-column: 1 / -1;
     text-align: center;
-    margin-top: clamp(1rem, 2vh, 2rem);
+    margin-top: 0;
+    padding-top: clamp(1rem, 1.5vh, 1.5rem);
     flex-shrink: 0;
 }
 
@@ -960,7 +965,7 @@ button[id*="reset"] {
 
 .mini-game-players p {
     font-size: clamp(1rem, 1.5vw, 1.3rem);
-    opacity: 0.9;
+    color: white;
 }
 
 .at-risk-section {
@@ -1017,15 +1022,15 @@ button[id*="reset"] {
 }
 
 .next-round-message {
+    color: white;
     font-size: clamp(1.2rem, 2vw, 1.5rem);
     margin-top: 30px;
-    opacity: 0.8;
     animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.9; }
 }
 
 /* TV Chalices Mini-Game Results */
@@ -1046,7 +1051,6 @@ button[id*="reset"] {
     font-size: clamp(1.2rem, 2vw, 1.5rem);
     margin: 20px 0 15px 0;
     color: #FFF;
-    opacity: 0.9;
 }
 
 .tv-chalices-display {
@@ -1132,7 +1136,7 @@ button[id*="reset"] {
 .choice-action {
     flex: 2;
     text-align: center;
-    opacity: 0.9;
+    color: white;
 }
 
 .choice-result {
@@ -1572,9 +1576,10 @@ button[id*="reset"] {
 
 .answer-author-result {
     font-size: clamp(0.95rem, 1.2vw, 1.1rem);
-    color: #666;
+    color: #333;
     font-style: italic;
     margin-bottom: 10px;
+    font-weight: 600;
 }
 
 .vote-count {

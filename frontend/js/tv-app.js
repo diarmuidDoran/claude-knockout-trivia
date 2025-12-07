@@ -1004,9 +1004,21 @@ class TVApp {
             window.hauntingRaceManager.cleanup();
         }
 
-        // Hide all game screens, show game over screen
+        // Clear timer if running
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+
+        // Hide ALL screens first to prevent overlap
+        document.getElementById('tv-home-screen').classList.add('hidden');
+        document.getElementById('tv-waiting-screen').classList.add('hidden');
         document.getElementById('tv-game-screen').classList.add('hidden');
-        document.getElementById('tv-game-over-screen').classList.remove('hidden');
+
+        // Then show game over screen
+        const gameOverScreen = document.getElementById('tv-game-over-screen');
+        gameOverScreen.classList.remove('hidden');
+        console.log('[GAME-END] Game over screen should now be visible');
 
         // Auto-return to home screen after 30 seconds if no rematch
         if (this.autoReturnTimeout) {
@@ -1462,9 +1474,12 @@ class TVApp {
                 const player = this.gameState.players.find(p => p.id === playerId);
                 if (player) {
                     player.is_ghost = true;
+                    console.log(`[TV] Updated ${player.name} to ghost status`);
                 }
             });
-            this.updatePlayersDisplay();
+            // Update both waiting screen and in-game avatars
+            this.updatePlayersDisplay();  // For waiting screen
+            this.displayPlayerAvatars();  // For in-game screen (updates emoji from 🦄 to 👻)
         }
     }
 
@@ -1801,6 +1816,24 @@ class TVApp {
         // Stop player polling
         this.stopPlayerPolling();
 
+        // Clear timer if running
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+
+        // Hide haunting race screen if it's active
+        const hauntingRaceScreen = document.getElementById('haunting-race-screen');
+        if (hauntingRaceScreen) {
+            hauntingRaceScreen.classList.add('hidden');
+            hauntingRaceScreen.classList.remove('active');
+        }
+
+        // Clean up haunting race manager if it exists
+        if (window.hauntingRaceManager) {
+            window.hauntingRaceManager.cleanup();
+        }
+
         // Reset game state
         this.gameState.gameStatus = 'waiting';
         this.gameState.currentQuestion = null;
@@ -1812,7 +1845,9 @@ class TVApp {
             player.hasAnswered = false;
         });
 
-        // Hide game over screen, show waiting screen
+        // Hide ALL screens, then show waiting screen
+        document.getElementById('tv-home-screen').classList.add('hidden');
+        document.getElementById('tv-game-screen').classList.add('hidden');
         document.getElementById('tv-game-over-screen').classList.add('hidden');
         document.getElementById('tv-waiting-screen').classList.remove('hidden');
 

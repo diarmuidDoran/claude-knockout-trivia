@@ -309,6 +309,7 @@ async def rematch_game(rematch_request: RematchRequest, request: Request, db: Se
     room.game_state = GameState.WAITING
     room.current_question_id = None
     room.question_start_time = None
+    room.is_haunting_race_active = False  # Clear haunting race state
     db.commit()
 
     # Broadcast rematch event via WebSocket
@@ -329,6 +330,11 @@ async def rematch_game(rematch_request: RematchRequest, request: Request, db: Se
     # Actually start the game with game_service
     if hasattr(request.app.state, 'game_service'):
         game_service = request.app.state.game_service
+        # Clear haunting race state
+        if room.code in game_service.active_haunting_races:
+            del game_service.active_haunting_races[room.code]
+        if room.code in game_service.haunting_race_service.game_state:
+            game_service.haunting_race_service.game_state = {}
         asyncio.create_task(game_service.start_game(room.code))
 
     return {"message": "Rematch started", "room_code": rematch_request.room_code}

@@ -479,6 +479,15 @@ mini_games/
 
 ---
 
+## Live Demo
+
+**🎮 Play Now:** https://claude-knockout-trivia-production.up.railway.app/
+
+- **TV Display:** https://claude-knockout-trivia-production.up.railway.app/tv.html
+- **Mobile Players:** https://claude-knockout-trivia-production.up.railway.app/mobile.html
+
+---
+
 ## Quick Start
 
 ### Using Docker (Recommended)
@@ -1422,6 +1431,15 @@ For each question, the correct answer and 3 wrong answers are shuffled into rand
 ---
 
 ## Recent Updates
+
+### 2025-12-04
+- **✅ Railway Deployment Complete!**
+  - Live at https://claude-knockout-trivia-production.up.railway.app/
+  - Automatic database initialization and question seeding on startup
+  - PostgreSQL database connected and operational
+  - Frontend and backend fully integrated
+  - WebSocket connections working across devices
+  - Tested and verified on both desktop and mobile
 
 ### 2025-11-30
 - **Added Haunting Race feature** - Special end-game mode when 2 living players remain

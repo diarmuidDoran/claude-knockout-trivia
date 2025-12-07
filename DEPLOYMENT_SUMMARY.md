@@ -53,8 +53,10 @@ railway run python backend/load_haunting_race_questions.py
 
 ### 5. Open Your App
 ```
-https://your-app.railway.app
+https://claude-knockout-trivia-production.up.railway.app
 ```
+
+**Status:** ✅ Successfully deployed and tested!
 
 ---
 
@@ -87,11 +89,13 @@ Optional (you can add in Railway dashboard):
 
 ## URLs After Deployment
 
-- **Homepage**: `https://your-app.railway.app/`
-- **TV Screen**: `https://your-app.railway.app/tv.html`
-- **Mobile**: `https://your-app.railway.app/mobile.html`
-- **API**: `https://your-app.railway.app/api/`
-- **Health**: `https://your-app.railway.app/health`
+✅ **LIVE DEPLOYMENT:** https://claude-knockout-trivia-production.up.railway.app/
+
+- **Homepage**: https://claude-knockout-trivia-production.up.railway.app/
+- **TV Screen**: https://claude-knockout-trivia-production.up.railway.app/tv.html
+- **Mobile**: https://claude-knockout-trivia-production.up.railway.app/mobile.html
+- **API**: https://claude-knockout-trivia-production.up.railway.app/api/
+- **Health**: https://claude-knockout-trivia-production.up.railway.app/health
 
 ---
 

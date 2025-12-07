@@ -290,3 +290,44 @@ function handleGameEnded(data) {
         }
     }
 }
+
+function handleRematchStarted(data) {
+    console.log('Rematch started:', data);
+
+    // Clear timer if running
+    if (timerInterval) clearInterval(timerInterval);
+
+    // Hide haunting race screen if it's active
+    const hauntingRaceScreen = document.getElementById('haunting-race-screen');
+    if (hauntingRaceScreen) {
+        hauntingRaceScreen.classList.add('hidden');
+        hauntingRaceScreen.classList.remove('active');
+    }
+
+    // Clean up haunting race manager if it exists
+    if (window.hauntingRaceManager) {
+        window.hauntingRaceManager.cleanup();
+    }
+
+    // Hide mini-game container if it's visible
+    const miniGameContainer = document.getElementById('mini-game-container');
+    if (miniGameContainer) {
+        miniGameContainer.style.display = 'none';
+        miniGameContainer.innerHTML = '';
+    }
+
+    // Reset game state
+    playerScore = 0;
+    hasAnswered = false;
+    currentQuestion = null;
+
+    // Hide all game screens
+    document.getElementById('game-screen').classList.add('hidden');
+    document.getElementById('game-over-screen').classList.add('hidden');
+
+    // Show waiting screen
+    document.getElementById('waiting-screen').classList.remove('hidden');
+
+    // Show rematch message
+    showNotification('Rematch starting! All scores reset.', 'success');
+}
