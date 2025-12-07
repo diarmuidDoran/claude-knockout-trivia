@@ -942,6 +942,15 @@ body {
         margin: 0.3rem 0;
     }
 
+    .room-info {
+        margin: 0.4rem 0;
+    }
+
+    .room-code-display {
+        padding: 0.25rem 0.6rem;
+        font-size: 0.95rem;
+    }
+
     .players-list {
         padding: 1rem;
         margin-bottom: 1rem;
@@ -1058,6 +1067,16 @@ body {
 
     #waiting-screen .header {
         margin-bottom: 0.8rem;
+    }
+
+    .room-info {
+        margin: 0.5rem 0;
+    }
+
+    .room-code-display {
+        padding: 0.3rem 0.8rem;
+        font-size: 1rem;
+        display: inline-block;
     }
 
     .players-list {

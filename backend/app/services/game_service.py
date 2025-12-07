@@ -71,19 +71,28 @@ class GameService:
                 player_id_int = int(player_id)
                 player = db.query(Player).filter(Player.id == player_id_int).first()
                 if player:
-                    player.is_connected = False
-                    db.commit()
+                    room = db.query(Room).filter(Room.id == player.room_id).first()
 
-                    # Notify other players
-                    await self.connection_manager.broadcast_to_room(
-                        room_code,
-                        {
-                            "type": "player_disconnected",
-                            "player_id": player_id,
-                            "player_name": player.name,
-                            "timestamp": datetime.utcnow().isoformat()
-                        }
-                    )
+                    # DON'T mark as disconnected during active games
+                    # Players often reconnect immediately during screen transitions/mini-games
+                    # Only mark as disconnected if game hasn't started yet (WAITING state)
+                    if room and room.game_state == GameState.WAITING:
+                        player.is_connected = False
+                        db.commit()
+                        print(f"[DISCONNECT] Player {player.name} (ID: {player_id}) marked as disconnected (game in WAITING state)")
+
+                        # Notify other players
+                        await self.connection_manager.broadcast_to_room(
+                            room_code,
+                            {
+                                "type": "player_disconnected",
+                                "player_id": player_id,
+                                "player_name": player.name,
+                                "timestamp": datetime.utcnow().isoformat()
+                            }
+                        )
+                    else:
+                        print(f"[DISCONNECT] Player {player.name} (ID: {player_id}) WebSocket disconnected but NOT marking as disconnected (game active/ended)")
             except ValueError:
                 # Invalid player_id (not an integer), ignore
                 pass
