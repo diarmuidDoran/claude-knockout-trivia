@@ -1029,9 +1029,29 @@ class TVApp {
             this.autoFinishGame();
         }, 30000); // 30 seconds
 
-        // Show final leaderboard
-        if (data.final_leaderboard && data.final_leaderboard.length > 0) {
-            console.log('Final leaderboard:', data.final_leaderboard);
+        // Show final leaderboard with error handling
+        try {
+            if (!data || !data.final_leaderboard) {
+                console.error('[GAME-END] Error: Missing final_leaderboard data', data);
+                // Show error message
+                const winnerDisplay = document.getElementById('winner-display');
+                if (winnerDisplay) {
+                    winnerDisplay.innerHTML = `
+                        <div style="color: white; text-align: center; padding: 20px;">
+                            <h2>Game Ended</h2>
+                            <p>Unable to load final results</p>
+                        </div>
+                    `;
+                }
+                return;
+            }
+
+            if (data.final_leaderboard.length === 0) {
+                console.warn('[GAME-END] Warning: Empty final_leaderboard');
+                return;
+            }
+
+            console.log('[GAME-END] Final leaderboard:', data.final_leaderboard);
 
             // Display winner (first place)
             const winner = data.final_leaderboard[0];
@@ -1047,6 +1067,8 @@ class TVApp {
                     <div class="winner-name">${this.escapeHtml(winner.player_name)}</div>
                     <div class="winner-score">${winner.total_score} points</div>
                 `;
+            } else {
+                console.error('[GAME-END] Error: winner-display element not found');
             }
 
             // Display final standings
@@ -1072,6 +1094,8 @@ class TVApp {
 
                     finalLeaderboard.appendChild(item);
                 });
+            } else {
+                console.error('[GAME-END] Error: final-leaderboard element not found');
             }
 
             // Hide rematch button - VIP controls rematch from mobile
@@ -1081,6 +1105,18 @@ class TVApp {
 
             if (rematchBtn) rematchBtn.classList.add('hidden');
             if (finishBtn) finishBtn.classList.remove('hidden');
+        } catch (error) {
+            console.error('[GAME-END] Error displaying game results:', error);
+            // Show error message to user
+            const winnerDisplay = document.getElementById('winner-display');
+            if (winnerDisplay) {
+                winnerDisplay.innerHTML = `
+                    <div style="color: white; text-align: center; padding: 20px;">
+                        <h2>Game Ended</h2>
+                        <p>Error displaying results. Please check console.</p>
+                    </div>
+                `;
+            }
         }
     }
 

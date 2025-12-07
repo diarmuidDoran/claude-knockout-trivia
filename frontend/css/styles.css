@@ -1108,7 +1108,7 @@ body {
 
 .room-code-label {
     font-size: 1.1rem;
-    color: #666;
+    color: #333;
     margin-bottom: 0.5rem;
     font-weight: 500;
 }
@@ -1124,7 +1124,7 @@ body {
 }
 
 .room-code-subtitle {
-    color: #666;
+    color: #333;
     font-size: 0.9rem;
     margin-top: 1rem;
 }
@@ -1192,7 +1192,7 @@ body {
 }
 
 .vip-info p {
-    color: #666;
+    color: #333;
     margin-bottom: 1rem;
     font-size: 0.9rem;
 }
@@ -1235,7 +1235,7 @@ body {
 
 .mini-game-description {
     font-size: 1.1rem;
-    color: #666;
+    color: #333;
     margin-bottom: 1.5rem;
 }
 
@@ -1360,7 +1360,7 @@ body {
 
 .instructions {
     margin-top: 20px;
-    color: #666;
+    color: #333;
 }
 
 .game-mode-info {
@@ -1420,7 +1420,7 @@ body {
 
 .grid-instruction {
     font-size: 0.9em;
-    color: #666;
+    color: #333;
     margin-bottom: 10px;
 }
 
@@ -1530,7 +1530,7 @@ body {
 
 .selection-info {
     font-size: 0.95em;
-    color: #666;
+    color: #333;
     margin-top: 10px;
 }
 
@@ -1559,7 +1559,7 @@ body {
 .suspense-text {
     margin-top: 15px;
     font-style: italic;
-    color: #888;
+    color: #555;
 }
 
 /* Timer Display */
@@ -1663,7 +1663,7 @@ body {
 .position-label {
     display: block;
     font-size: 0.85em;
-    color: #666;
+    color: #333;
     margin-top: 5px;
 }
 
@@ -1693,7 +1693,7 @@ body {
 
 .points-label {
     font-size: 1em;
-    color: #666;
+    color: #333;
 }
 
 .submit-points-btn {
@@ -1777,7 +1777,7 @@ body {
 
 .char-count {
     font-size: 0.9em;
-    color: #666;
+    color: #333;
     margin-bottom: 15px;
 }
 
@@ -1907,7 +1907,7 @@ body {
 
 .next-round-notice {
     margin-top: 20px;
-    color: #666;
+    color: #333;
     font-style: italic;
 }
 

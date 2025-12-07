@@ -228,8 +228,22 @@ function handleGameEnded(data) {
     document.getElementById('game-screen').classList.add('hidden');
     document.getElementById('game-over-screen').classList.remove('hidden');
 
-    // Show final results
-    if (data.final_leaderboard && data.final_leaderboard.length > 0) {
+    // Show final results with error handling
+    try {
+        if (!data || !data.final_leaderboard) {
+            console.error('[MOBILE-GAME-END] Error: Missing final_leaderboard data', data);
+            document.getElementById('player-final-rank').textContent = '?';
+            document.getElementById('player-final-score').textContent = '0';
+            return;
+        }
+
+        if (data.final_leaderboard.length === 0) {
+            console.warn('[MOBILE-GAME-END] Warning: Empty final_leaderboard');
+            return;
+        }
+
+        console.log('[MOBILE-GAME-END] Final leaderboard:', data.final_leaderboard);
+
         // Find player's rank
         const playerRank = data.final_leaderboard.findIndex(p => p.player_id === playerId);
         const playerData = data.final_leaderboard[playerRank];
@@ -258,6 +272,10 @@ function handleGameEnded(data) {
                 rankCard.style.background = 'linear-gradient(135deg, #CD7F32 0%, #8B4513 100%)';
                 rankCard.style.color = 'white';
             }
+        } else {
+            console.error('[MOBILE-GAME-END] Error: Player not found in leaderboard');
+            document.getElementById('player-final-rank').textContent = '?';
+            document.getElementById('player-final-score').textContent = '0';
         }
 
         // Display final leaderboard
@@ -288,6 +306,11 @@ function handleGameEnded(data) {
             document.getElementById('vip-game-options').style.display = 'none';
             document.getElementById('waiting-vip-message').style.display = 'block';
         }
+    } catch (error) {
+        console.error('[MOBILE-GAME-END] Error displaying game results:', error);
+        // Show error to user
+        document.getElementById('player-final-rank').textContent = 'Error';
+        document.getElementById('player-final-score').textContent = '0';
     }
 }
 
