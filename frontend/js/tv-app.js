@@ -983,7 +983,8 @@ class TVApp {
 
     // Handle game ended event
     handleGameEnded(data) {
-        console.log('Game ended:', data);
+        console.log('[TV-GAME-END] ========== GAME ENDED EVENT RECEIVED ==========');
+        console.log('[TV-GAME-END] Event data:', data);
         this.gameState.gameStatus = 'finished';
 
         // Stop player polling
@@ -995,13 +996,22 @@ class TVApp {
         // Clean up haunting race if it's active
         const hauntingRaceScreen = document.getElementById('haunting-race-screen');
         if (hauntingRaceScreen) {
+            console.log('[TV-GAME-END] Hiding haunting race screen');
             hauntingRaceScreen.classList.add('hidden');
             hauntingRaceScreen.classList.remove('active');
         }
 
         // Clean up haunting race manager if it exists
         if (window.hauntingRaceManager) {
+            console.log('[TV-GAME-END] Cleaning up haunting race manager');
             window.hauntingRaceManager.cleanup();
+        }
+
+        // Remove any winner screens that might still be visible
+        const winnerScreens = document.querySelectorAll('.haunting-race-winner');
+        if (winnerScreens.length > 0) {
+            console.log('[TV-GAME-END] Removing', winnerScreens.length, 'winner screen(s)');
+            winnerScreens.forEach(screen => screen.remove());
         }
 
         // Clear timer if running
@@ -1011,6 +1021,7 @@ class TVApp {
         }
 
         // Hide ALL screens first to prevent overlap
+        console.log('[TV-GAME-END] Hiding all other screens');
         document.getElementById('tv-home-screen').classList.add('hidden');
         document.getElementById('tv-waiting-screen').classList.add('hidden');
         document.getElementById('tv-game-screen').classList.add('hidden');
@@ -1018,7 +1029,7 @@ class TVApp {
         // Then show game over screen
         const gameOverScreen = document.getElementById('tv-game-over-screen');
         gameOverScreen.classList.remove('hidden');
-        console.log('[GAME-END] Game over screen should now be visible');
+        console.log('[TV-GAME-END] ✓ Game over screen displayed');
 
         // Auto-return to home screen after 30 seconds if no rematch
         if (this.autoReturnTimeout) {

@@ -384,9 +384,18 @@ class HauntingRaceManager {
             statementItem.className = 'statement-item';
             statementItem.dataset.statementId = statement.id;
 
+            // Check if this is a ghost-only statement and player is unicorn
+            const isGhostOnly = statement.is_ghost_only;
+            const isDisabled = isGhostOnly && this.isUnicorn;
+
             // Mark ghost-only statements
-            if (statement.is_ghost_only) {
+            if (isGhostOnly) {
                 statementItem.classList.add('ghost-only');
+            }
+
+            // Disable for unicorn players
+            if (isDisabled) {
+                statementItem.classList.add('disabled');
             }
 
             // Checkbox
@@ -400,9 +409,22 @@ class HauntingRaceManager {
             text.textContent = statement.text;
             statementItem.appendChild(text);
 
+            // Add "Ghosts Only" badge for unicorn players
+            if (isDisabled) {
+                const ghostBadge = document.createElement('div');
+                ghostBadge.className = 'ghost-only-badge';
+                ghostBadge.textContent = '👻 Ghosts Only';
+                statementItem.appendChild(ghostBadge);
+            }
+
             // Click handler
             statementItem.addEventListener('click', () => {
                 if (this.hasAnswered) return;
+                // Prevent unicorns from selecting ghost-only statements
+                if (isDisabled) {
+                    console.log('[HAUNTING-RACE] Unicorn cannot select ghost-only statement');
+                    return;
+                }
 
                 this.toggleStatement(statement.id, statementItem);
             });
@@ -581,7 +603,13 @@ class HauntingRaceManager {
     handleUnicornSwap(data) {
         console.log('[HAUNTING-RACE-SWAP] Unicorn swap event received:', data);
 
-        const swapData = data.data;
+        // CRITICAL FIX: Backend sends as data.swap_data, not data.data
+        const swapData = data.swap_data || data.data;
+
+        if (!swapData) {
+            console.error('[HAUNTING-RACE-SWAP] ERROR: No swap data received!', data);
+            return;
+        }
 
         console.log('[HAUNTING-RACE-SWAP] Old unicorn:', swapData.old_unicorn_id);
         console.log('[HAUNTING-RACE-SWAP] New unicorn:', swapData.new_unicorn_id);
@@ -598,6 +626,7 @@ class HauntingRaceManager {
         this.isUnicorn = (swapData.new_unicorn_id == this.playerId);
 
         console.log('[HAUNTING-RACE-SWAP] Updated local state - Unicorn ID:', this.raceData.unicorn_id, 'Ghost IDs:', this.raceData.ghost_ids);
+        console.log('[HAUNTING-RACE-SWAP] This player is now:', this.isUnicorn ? 'UNICORN 🦄' : 'GHOST 👻');
 
         // Update UI to reflect new role
         this.updateRoleDisplay();
@@ -746,8 +775,10 @@ class HauntingRaceManager {
 
     // Show winner screen
     showWinnerScreen(winnerData) {
-        const winner = this.raceData.players.find(p => p.id == winnerData.winner_id);
-        const winnerName = winner ? winner.name : 'Player';
+        // Use winner_name directly from the event data (more reliable than looking up in raceData)
+        const winnerName = winnerData.winner_name || 'Player';
+
+        console.log('[HAUNTING-RACE] Showing winner screen for:', winnerName);
 
         // Create winner overlay
         const winnerScreen = document.createElement('div');
@@ -769,7 +800,7 @@ class HauntingRaceManager {
         name.textContent = winnerName;
 
         const message = document.createElement('div');
-        message.style.cssText = 'font-size: 1.2rem; margin-top: 20px; opacity: 0.9;';
+        message.style.cssText = 'font-size: 1.2rem; margin-top: 20px; opacity: 0.9; color: white;';
         message.textContent = 'The unicorn reached the finish line!';
 
         content.appendChild(icon);
@@ -780,8 +811,11 @@ class HauntingRaceManager {
 
         document.body.appendChild(winnerScreen);
 
+        console.log('[HAUNTING-RACE] Winner screen displayed, will auto-remove in 5 seconds');
+
         // Remove after 5 seconds and return to normal game flow
         setTimeout(() => {
+            console.log('[HAUNTING-RACE] Removing winner screen and cleaning up');
             winnerScreen.remove();
             this.cleanup();
         }, 5000);
