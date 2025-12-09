@@ -960,6 +960,11 @@ class GameService:
                     # End the haunting race
                     self.active_haunting_races[room_code] = False
 
+                    # Wait 5 seconds for winner screen to display on frontend
+                    # before broadcasting game_ended event
+                    print(f"[HAUNTING-RACE] Waiting 5 seconds for winner screen before ending game...")
+                    await asyncio.sleep(5)
+
                     # End the game with haunting race winner
                     await self.end_game(room_code, haunting_race_winner_id=results["winner"]["player_id"])
                     break
@@ -1285,7 +1290,7 @@ class GameService:
             # Wait for players to see results
             await asyncio.sleep(5)
 
-            # Check if game should end (only 1 or 0 living players) or trigger haunting race
+            # Check if game should end (only 0 living players) or trigger haunting race (1 living + ghosts)
             room = db.query(Room).filter(Room.code == room_code).first()
             living_count = db.query(Player).filter(
                 Player.room_id == room.id,
@@ -1293,10 +1298,14 @@ class GameService:
                 Player.is_connected == True
             ).count()
 
-            if living_count <= 1:
-                print(f"[GAME] Living count <= 1 in room {room_code}. Checking for haunting race trigger...")
+            if living_count == 0:
+                # All players eliminated - end game
+                print(f"[GAME] All players eliminated in room {room_code}. Ending game.")
+                await self.end_game(room_code)
+            elif living_count == 1:
+                print(f"[GAME] 1 living player in room {room_code}. Checking for haunting race trigger...")
 
-                # Check if haunting race should be triggered
+                # Check if haunting race should be triggered (1 living + at least 1 ghost)
                 should_trigger_haunting_race = await self.check_haunting_race_trigger(room_code)
                 is_already_active = self.active_haunting_races.get(room_code, False)
 
@@ -1309,10 +1318,23 @@ class GameService:
                     if is_already_active:
                         print(f"[GAME] Haunting race already active for room {room_code}, skipping")
                     else:
-                        print(f"[GAME] Conditions not met for haunting race. Ending game for room {room_code}")
-                    await self.end_game(room_code)
+                        # No haunting race (e.g., single-player with no ghosts)
+                        # Check if there are more questions remaining
+                        if room_code in self.active_games:
+                            questions_answered = self.active_games[room_code]["questions_answered"]
+                            total_questions = self.active_games[room_code]["total_questions"]
+
+                            if questions_answered < total_questions:
+                                print(f"[GAME] Single player game or no ghosts. Continuing to next question ({questions_answered}/{total_questions})")
+                                await self.next_question(room_code)
+                            else:
+                                print(f"[GAME] All questions answered. Ending game for room {room_code}")
+                                await self.end_game(room_code)
+                        else:
+                            print(f"[GAME] Room {room_code} not in active games. Ending game.")
+                            await self.end_game(room_code)
             else:
-                # Continue to next question
+                # Multiple living players - continue to next question
                 await self.next_question(room_code)
 
         finally:

@@ -17,6 +17,7 @@ class HauntingRaceManager {
         this.hasAnswered = false;
         this.positions = {};
         this.isUnicorn = false;
+        this.updateCancelled = false;  // Flag to cancel pending position updates
 
         // DOM references (lazy loaded)
         this.elements = {};
@@ -155,6 +156,13 @@ class HauntingRaceManager {
         const elements = this.getElements();
         if (!elements.track) return;
 
+        // Cancel any pending updates
+        this.updateCancelled = true;
+        await this.delay(10); // Give time for async operations to check flag
+
+        // Reset cancellation flag for this update
+        this.updateCancelled = false;
+
         // Remove existing player icons
         document.querySelectorAll('.race-player').forEach(el => el.remove());
 
@@ -175,6 +183,12 @@ class HauntingRaceManager {
         // Wait before showing ghosts move (so players see unicorn moves first)
         if (animate) {
             await this.delay(2000); // 2 second delay
+
+            // Check if this update was cancelled during the delay
+            if (this.updateCancelled) {
+                console.log('[HAUNTING-RACE-UPDATE] Update cancelled, skipping ghost rendering');
+                return;
+            }
         }
 
         // Add ALL ghosts at the same time (after unicorn)

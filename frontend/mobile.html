@@ -548,6 +548,16 @@
                     // Hide the resume button since we're now restoring
                     document.getElementById('resume-session-btn').classList.add('hidden');
 
+                    // Initialize WebSocketManager FIRST (before checking any game states)
+                    wsManager = new WebSocketManager();
+
+                    // Initialize Mini-Games Manager
+                    miniGamesManager = new MiniGamesManager(wsManager);
+                    miniGamesManager.setPlayerId(playerId);
+
+                    // Initialize Haunting Race Manager
+                    hauntingRaceManager = new HauntingRaceManager(wsManager, playerId, false);
+
                     // Determine which screen to show based on game state
                     const gameState = data.room.game_state.toUpperCase();
                     const isHauntingRaceActive = data.room.is_haunting_race_active || false;
@@ -684,17 +694,12 @@
                         return;
                     }
 
-                    // Connect WebSocket
-                    wsManager = new WebSocketManager();
-                    wsManager.connect(currentRoom, playerId);
-                    updateConnectionStatus('connected', 'Reconnected');
-
-                    // Initialize Mini-Games Manager
-                    miniGamesManager = new MiniGamesManager(wsManager);
-                    miniGamesManager.setPlayerId(playerId);
-
-                    // Initialize Haunting Race Manager
-                    hauntingRaceManager = new HauntingRaceManager(wsManager, playerId, false);
+                    // Connect WebSocket for non-haunting-race states
+                    // (Haunting race already connects in its own block above)
+                    if (!isHauntingRaceActive) {
+                        wsManager.connect(currentRoom, playerId);
+                        updateConnectionStatus('connected', 'Reconnected');
+                    }
 
                     // Setup WebSocket listeners
                     setupWebSocketListeners();
