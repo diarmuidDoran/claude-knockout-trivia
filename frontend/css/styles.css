@@ -947,8 +947,9 @@ body {
     }
 
     .room-code-display {
-        padding: 0.25rem 0.6rem;
+        padding: 0.1rem 0.6rem;
         font-size: 0.95rem;
+        line-height: 1.2;
     }
 
     /* VIP badge mobile styles */
@@ -1140,8 +1141,9 @@ body {
     }
 
     .room-code-display {
-        padding: 0.3rem 0.8rem;
+        padding: 0.15rem 0.8rem;
         font-size: 1rem;
+        line-height: 1.2;
         display: inline-block;
     }
 
