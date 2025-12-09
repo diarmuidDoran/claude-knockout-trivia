@@ -970,6 +970,53 @@ body {
         margin: 0;
     }
 
+    /* Mobile player list items */
+    .mobile-player-item {
+        padding: 0.6rem 0.8rem;
+        flex-wrap: nowrap;
+    }
+
+    .player-name {
+        font-size: 0.9rem;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-right: 0.5rem;
+    }
+
+    .player-badges {
+        gap: 0.3rem;
+        flex-shrink: 0;
+    }
+
+    .badge {
+        padding: 0.15rem 0.4rem;
+        font-size: 0.6rem;
+        border-radius: 8px;
+    }
+
+    .player-info {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .player-info h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .players-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .players-section h3 {
+        font-size: 1rem;
+        margin-bottom: 0.8rem;
+    }
+
     .players-list {
         padding: 1rem;
         margin-bottom: 1rem;
@@ -1111,6 +1158,40 @@ body {
 
     .vip-status p {
         font-size: 0.8rem;
+    }
+
+    /* Mobile player list items - tighter for very small screens */
+    .mobile-player-item {
+        padding: 0.5rem 0.6rem;
+    }
+
+    .player-name {
+        font-size: 0.85rem;
+    }
+
+    .badge {
+        padding: 0.12rem 0.35rem;
+        font-size: 0.55rem;
+    }
+
+    .player-info {
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .player-info h3 {
+        font-size: 1rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .players-section {
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .players-section h3 {
+        font-size: 0.95rem;
+        margin-bottom: 0.6rem;
     }
 
     .players-list {
